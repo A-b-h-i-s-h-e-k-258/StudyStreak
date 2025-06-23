@@ -6,6 +6,7 @@ import { HabitGrid } from '@/components/HabitGrid';
 import { TodoSection } from '@/components/TodoSection';
 import { StatsCards } from '@/components/StatsCards';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { TaskBreakdownSection } from '@/components/TaskBreakdownSection';
 
 const Index = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -75,6 +76,12 @@ const Index = () => {
               </div>
             </div>
             
+            <TaskBreakdownSection />
+          </div>
+
+          {/* Calendar Grid Section */}
+          <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
+            <h2 className="text-2xl font-bold mb-6">Monthly Progress</h2>
             <HabitGrid habits={habits} currentDate={currentDate} />
           </div>
 
