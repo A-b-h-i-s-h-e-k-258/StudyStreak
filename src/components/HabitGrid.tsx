@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Eye, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -100,14 +101,14 @@ export const HabitGrid = ({ habits, currentDate }: HabitGridProps) => {
           <div className="grid grid-cols-7 gap-1 text-xs">
             {/* Day headers */}
             {weekDays.map((day, index) => (
-              <div key={index} className="text-center text-gray-400 font-medium py-1">
+              <div key={index} className="text-center text-gray-400 font-medium py-2">
                 {day}
               </div>
             ))}
             
             {/* Empty cells for month start alignment */}
             {Array.from({ length: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay() }).map((_, index) => (
-              <div key={`empty-${index}`} className="w-8 h-8" />
+              <div key={`empty-${index}`} className="aspect-square" />
             ))}
             
             {/* Days */}
@@ -120,12 +121,12 @@ export const HabitGrid = ({ habits, currentDate }: HabitGridProps) => {
                   key={day}
                   onClick={() => toggleDay(habit.id, day)}
                   className={`
-                    w-8 h-8 rounded border transition-all duration-200 flex items-center justify-center text-xs font-medium
+                    aspect-square rounded-lg border transition-all duration-200 flex items-center justify-center text-xs font-medium
                     ${isCompleted 
                       ? 'bg-emerald-500/30 border-emerald-500/50 text-emerald-300 hover:bg-emerald-500/40' 
                       : 'bg-gray-800/30 border-gray-600/30 text-gray-400 hover:bg-gray-700/50 hover:border-gray-500/50'
                     }
-                    ${isToday ? 'ring-1 ring-blue-400/50' : ''}
+                    ${isToday ? 'ring-2 ring-blue-400/50' : ''}
                   `}
                 >
                   {day}
