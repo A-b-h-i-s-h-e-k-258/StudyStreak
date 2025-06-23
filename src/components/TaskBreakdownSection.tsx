@@ -1,6 +1,8 @@
 
+import { useState } from 'react';
 import { Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { GoalModificationDialog } from './GoalModificationDialog';
 
 interface TaskBreakdownItem {
   id: string;
@@ -13,7 +15,7 @@ interface TaskBreakdownItem {
 }
 
 export const TaskBreakdownSection = () => {
-  const tasks: TaskBreakdownItem[] = [
+  const [tasks, setTasks] = useState<TaskBreakdownItem[]>([
     {
       id: 'cp-contest',
       name: 'CP Contest',
@@ -59,10 +61,20 @@ export const TaskBreakdownSection = () => {
       bestStreak: 0,
       activeDays: 0,
     },
-  ];
+  ]);
 
   const getCompletionPercentage = (completions: number, goal: number) => {
+    if (goal === 0) return 0;
     return Math.round((completions / goal) * 100);
+  };
+
+  const handleGoalSave = (taskId: string, newGoal: number) => {
+    setTasks(prevTasks => 
+      prevTasks.map(task => 
+        task.id === taskId ? { ...task, goal: newGoal } : task
+      )
+    );
+    console.log(`Goal for task ${taskId} updated to ${newGoal}`);
   };
 
   return (
@@ -73,6 +85,11 @@ export const TaskBreakdownSection = () => {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-white">{task.name}</h3>
             <div className="flex items-center space-x-4">
+              <GoalModificationDialog
+                taskName={task.name}
+                currentGoal={task.goal}
+                onGoalSave={(newGoal) => handleGoalSave(task.id, newGoal)}
+              />
               <Button
                 variant="ghost"
                 size="sm"
@@ -92,7 +109,7 @@ export const TaskBreakdownSection = () => {
             <div>
               <div className="text-sm text-gray-400">Completions</div>
               <div className="text-blue-400 font-medium">
-                {task.completions}/{task.goal}
+                {task.completions}/{task.goal === 0 ? '∞' : task.goal}
               </div>
             </div>
             <div>
@@ -121,11 +138,11 @@ export const TaskBreakdownSection = () => {
             <div className="w-full bg-gray-700/50 rounded-full h-2">
               <div 
                 className="bg-gradient-to-r from-emerald-500 to-blue-500 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${(task.completions / task.goal) * 100}%` }}
+                style={{ width: task.goal === 0 ? '0%' : `${(task.completions / task.goal) * 100}%` }}
               />
             </div>
             <div className="text-right text-xs text-gray-400">
-              {task.completions}/{task.goal} goal
+              {task.completions}/{task.goal === 0 ? '∞' : task.goal} goal
             </div>
           </div>
         </div>
