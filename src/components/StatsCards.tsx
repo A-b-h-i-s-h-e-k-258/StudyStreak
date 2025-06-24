@@ -1,11 +1,26 @@
+import React from 'react';
 
-export const StatsCards = () => {
+interface StatsCardsProps {
+  totalCompletions: number;
+  avgCompletion: number; // as percentage, e.g. 75 for 75%
+  bestStreak: number;
+  activeHabits: number;
+  daysInMonth: number;
+}
+
+export const StatsCards: React.FC<StatsCardsProps> = ({
+  totalCompletions,
+  avgCompletion,
+  bestStreak,
+  activeHabits,
+  daysInMonth,
+}) => {
   const stats = [
-    { label: 'Total Completions', value: '0', color: 'text-blue-400' },
-    { label: 'Avg Completion', value: '0%', color: 'text-emerald-400' },
-    { label: 'Best Streak', value: '0', color: 'text-purple-400' },
-    { label: 'Active Tasks', value: '5', color: 'text-orange-400' },
-    { label: 'Days in Month', value: '31', color: 'text-red-400' },
+    { label: 'Total Completions', value: totalCompletions, color: 'text-blue-400' },
+    { label: 'Avg Completion', value: `${avgCompletion}%`, color: 'text-emerald-400' },
+    { label: 'Best Streak', value: bestStreak, color: 'text-purple-400' },
+    { label: 'Active Habits', value: activeHabits, color: 'text-orange-400' },
+    { label: 'Days in Month', value: daysInMonth, color: 'text-red-400' },
   ];
 
   return (
