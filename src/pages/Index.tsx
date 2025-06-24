@@ -79,22 +79,13 @@ const Index = () => {
         {/* Main Content */}
         <div className="mt-8 space-y-8">
           {/* Task Breakdown Section */}
-          <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
+          <div className="backdrop-blur-xl rounded-2xl border border-white/10 p-6 bg-slate-900">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">Task Breakdown</h2>
               <div className="flex space-x-3">
-                <Button variant="outline" size="sm" className="backdrop-blur-xl bg-white/10 border-white/20 text-white hover:bg-white/20">
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  See CP trends
-                </Button>
-                <Button variant="outline" size="sm" className="backdrop-blur-xl bg-white/10 border-white/20 text-white hover:bg-white/20">
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  See LC trends
-                </Button>
-                <Button variant="outline" size="sm" className="backdrop-blur-xl bg-white/10 border-white/20 text-white hover:bg-white/20">
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  See Web Dev trends
-                </Button>
+                
+                
+                
               </div>
             </div>
             
@@ -102,7 +93,7 @@ const Index = () => {
           </div>
 
           {/* Calendar Grid Section */}
-          <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
+          <div className="backdrop-blur-xl rounded-2xl border border-white/10 p-6 bg-slate-950">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">Monthly Progress</h2>
               <MonthNavigation currentDate={currentDate} onDateChange={setCurrentDate} />
