@@ -1,132 +1,107 @@
 
-import { useState } from 'react';
-import { Eye, Calendar } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-
-interface Habit {
-  id: string;
-  name: string;
-  goal: number;
-  completed: number;
-}
+import { useHabits } from '@/hooks/useHabits';
+import { AddHabitDialog } from './AddHabitDialog';
 
 interface HabitGridProps {
-  habits: Habit[];
+  habits: Array<{
+    id: string;
+    name: string;
+    goal: number;
+    completed: number;
+  }>;
   currentDate: Date;
 }
 
 export const HabitGrid = ({ habits, currentDate }: HabitGridProps) => {
-  const [habitData, setHabitData] = useState<Record<string, Record<number, boolean>>>({});
+  const { toggleCompletion, completions, isToggling } = useHabits();
 
-  // Generate days for current month
   const getDaysInMonth = (date: Date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    return Array.from({ length: daysInMonth }, (_, i) => i + 1);
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   };
 
-  const days = getDaysInMonth(currentDate);
-  const weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-
-  const toggleDay = (habitId: string, day: number) => {
-    setHabitData(prev => ({
-      ...prev,
-      [habitId]: {
-        ...prev[habitId],
-        [day]: !prev[habitId]?.[day]
-      }
-    }));
+  const getFirstDayOfMonth = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
   };
 
-  const getCompletedDays = (habitId: string) => {
-    return Object.values(habitData[habitId] || {}).filter(Boolean).length;
+  const isDateCompleted = (habitId: string, day: number) => {
+    const dateStr = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
+      .toISOString()
+      .split('T')[0];
+    return completions.some(c => c.habit_id === habitId && c.completion_date === dateStr);
   };
 
-  const getCompletionPercentage = (habitId: string, goal: number) => {
-    const completed = getCompletedDays(habitId);
-    return Math.round((completed / goal) * 100);
+  const handleDayClick = (habitId: string, day: number) => {
+    const dateStr = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
+      .toISOString()
+      .split('T')[0];
+    toggleCompletion({ habitId, date: dateStr });
   };
+
+  const daysInMonth = getDaysInMonth(currentDate);
+  const firstDayOfMonth = getFirstDayOfMonth(currentDate);
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  const emptyDays = Array.from({ length: firstDayOfMonth }, (_, i) => i);
+
+  if (habits.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-400 mb-4">No habits to track yet.</p>
+        <AddHabitDialog />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div className="text-sm text-gray-400">
+          Click on days to mark habits as completed
+        </div>
+        <AddHabitDialog />
+      </div>
+      
       {habits.map((habit) => (
         <div key={habit.id} className="space-y-3">
-          {/* Habit Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <h4 className="font-semibold text-lg">{habit.name}</h4>
-              <div className="flex items-center space-x-4 text-sm">
-                <span className="text-blue-400">
-                  Completions: {getCompletedDays(habit.id)}/{habit.goal}
-                </span>
-                <span className="text-emerald-400">
-                  Current Streak: 0 days
-                </span>
-                <span className="text-purple-400">
-                  Best Streak: 0 days
-                </span>
-                <span className="text-orange-400">
-                  Active Days: 0 days
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
-              >
-                <Eye className="h-4 w-4 mr-1" />
-                View Streaks
-              </Button>
-              <div className="px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-sm font-medium">
-                {getCompletionPercentage(habit.id, habit.goal)}% Complete
-              </div>
-            </div>
+          <div className="flex justify-between items-center">
+            <h4 className="font-semibold text-white">{habit.name}</h4>
+            <span className="text-sm text-gray-400">
+              {habit.completed}/{habit.goal}
+            </span>
           </div>
-
-          {/* Progress Bar */}
-          <div className="w-full bg-gray-700/50 rounded-full h-2">
-            <div 
-              className="bg-gradient-to-r from-emerald-500 to-blue-500 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(getCompletedDays(habit.id) / habit.goal) * 100}%` }}
-            />
-          </div>
-          <div className="text-right text-xs text-gray-400">
-            {getCompletedDays(habit.id)}/{habit.goal} goal
-          </div>
-
-          {/* Calendar Grid */}
-          <div className="grid grid-cols-7 gap-1 text-xs">
+          
+          <div className="grid grid-cols-7 gap-2">
             {/* Day headers */}
-            {weekDays.map((day, index) => (
-              <div key={index} className="text-center text-gray-400 font-medium py-2">
+            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => (
+              <div key={day} className="text-center text-xs text-gray-500 p-2">
                 {day}
               </div>
             ))}
             
-            {/* Empty cells for month start alignment */}
-            {Array.from({ length: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay() }).map((_, index) => (
-              <div key={`empty-${index}`} className="aspect-square" />
+            {/* Empty cells for days before month starts */}
+            {emptyDays.map((_, index) => (
+              <div key={`empty-${index}`} className="p-2" />
             ))}
             
-            {/* Days */}
+            {/* Days of the month */}
             {days.map((day) => {
-              const isCompleted = habitData[habit.id]?.[day] || false;
-              const isToday = day === currentDate.getDate();
+              const isCompleted = isDateCompleted(habit.id, day);
+              const isToday = new Date().getDate() === day && 
+                             new Date().getMonth() === currentDate.getMonth() &&
+                             new Date().getFullYear() === currentDate.getFullYear();
               
               return (
                 <button
                   key={day}
-                  onClick={() => toggleDay(habit.id, day)}
+                  onClick={() => handleDayClick(habit.id, day)}
+                  disabled={isToggling}
                   className={`
-                    aspect-square rounded-lg border transition-all duration-200 flex items-center justify-center text-xs font-medium
+                    p-2 text-sm rounded-lg transition-all duration-200 hover:scale-105
                     ${isCompleted 
-                      ? 'bg-emerald-500/30 border-emerald-500/50 text-emerald-300 hover:bg-emerald-500/40' 
-                      : 'bg-gray-800/30 border-gray-600/30 text-gray-400 hover:bg-gray-700/50 hover:border-gray-500/50'
+                      ? 'bg-emerald-500 text-white shadow-lg' 
+                      : 'bg-white/10 text-gray-300 hover:bg-white/20'
                     }
-                    ${isToday ? 'ring-2 ring-blue-400/50' : ''}
+                    ${isToday ? 'ring-2 ring-blue-400' : ''}
+                    disabled:opacity-50 disabled:cursor-not-allowed
                   `}
                 >
                   {day}

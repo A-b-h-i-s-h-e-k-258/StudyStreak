@@ -11,27 +11,16 @@ import { TaskBreakdownSection } from '@/components/TaskBreakdownSection';
 import { MonthNavigation } from '@/components/MonthNavigation';
 import { UserMenu } from '@/components/UserMenu';
 import { useAuth } from '@/hooks/useAuth';
+import { useHabits } from '@/hooks/useHabits';
+import { useTasks } from '@/hooks/useTasks';
 
 const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
   
-  const habits = [
-    { id: 'cp-contest', name: 'CP Contest', goal: 10, completed: 0 },
-    { id: 'cp-prob', name: 'CP-31 3 Prob', goal: 30, completed: 0 },
-    { id: 'lc-prob', name: 'LC 3 Prob', goal: 30, completed: 0 },
-    { id: 'lc-potd', name: 'LC POTD', goal: 30, completed: 0 },
-    { id: 'web-dev', name: 'Web Dev', goal: 20, completed: 0 },
-  ];
-
-  const todaysTodos = [
-    { id: 1, text: 'CP Contest', completed: false },
-    { id: 2, text: 'CP-31 3 Prob', completed: false },
-    { id: 3, text: 'LC 3 Prob', completed: false },
-    { id: 4, text: 'LC POTD', completed: false },
-    { id: 5, text: 'Web Dev', completed: false },
-  ];
+  const { habits, isLoading: habitsLoading } = useHabits();
+  const { todaysTasks, isLoading: tasksLoading } = useTasks();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -39,7 +28,7 @@ const Index = () => {
     }
   }, [user, loading, navigate]);
 
-  if (loading) {
+  if (loading || habitsLoading || tasksLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
         <div className="text-white">Loading...</div>
@@ -64,6 +53,13 @@ const Index = () => {
     
     return `${months[today.getMonth()]} ${day}${suffix}`;
   };
+
+  // Convert tasks to todo format for TodoSection
+  const todaysTodos = todaysTasks.map(task => ({
+    id: task.id,
+    text: task.title,
+    completed: task.status === 'completed'
+  }));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
@@ -150,9 +146,16 @@ const Index = () => {
                 {habits.map((habit) => (
                   <div key={habit.id} className="flex justify-between items-center">
                     <span className="text-gray-300">{habit.name}</span>
-                    <span className="text-gray-400">{habit.completed}%</span>
+                    <span className="text-gray-400">
+                      {Math.round((habit.completed / habit.goal) * 100)}%
+                    </span>
                   </div>
                 ))}
+                {habits.length === 0 && (
+                  <div className="text-gray-400 text-center py-4">
+                    No habits yet. Start by adding some habits to track!
+                  </div>
+                )}
               </div>
             </div>
           </div>
