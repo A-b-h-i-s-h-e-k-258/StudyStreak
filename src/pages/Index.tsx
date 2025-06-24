@@ -10,6 +10,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { TaskBreakdownSection } from '@/components/TaskBreakdownSection';
 import { MonthNavigation } from '@/components/MonthNavigation';
 import { UserMenu } from '@/components/UserMenu';
+import { AddTaskDialog } from '@/components/AddTaskDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { useHabits } from '@/hooks/useHabits';
 import { useTasks } from '@/hooks/useTasks';
@@ -103,10 +104,7 @@ const Index = () => {
             <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold">Todo list for today ({getFormattedDate()})</h3>
-                <Button className="backdrop-blur-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30" size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add new Task
-                </Button>
+                <AddTaskDialog />
               </div>
               <TodoSection todos={todaysTodos} />
             </div>
