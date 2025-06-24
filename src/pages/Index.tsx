@@ -1,14 +1,20 @@
 
 import { useState, useEffect } from 'react';
-import { Plus, TrendingUp, Calendar, Target } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, TrendingUp, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { HabitGrid } from '@/components/HabitGrid';
 import { TodoSection } from '@/components/TodoSection';
 import { StatsCards } from '@/components/StatsCards';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { TaskBreakdownSection } from '@/components/TaskBreakdownSection';
+import { MonthNavigation } from '@/components/MonthNavigation';
+import { UserMenu } from '@/components/UserMenu';
+import { useAuth } from '@/hooks/useAuth';
 
 const Index = () => {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
   
   const habits = [
@@ -27,6 +33,38 @@ const Index = () => {
     { id: 5, text: 'Web Dev', completed: false },
   ];
 
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  const getFormattedDate = () => {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    const today = new Date();
+    const day = today.getDate();
+    const suffix = day === 1 || day === 21 || day === 31 ? 'st' :
+                   day === 2 || day === 22 ? 'nd' :
+                   day === 3 || day === 23 ? 'rd' : 'th';
+    
+    return `${months[today.getMonth()]} ${day}${suffix}`;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
       {/* Glass Navigation */}
@@ -41,10 +79,7 @@ const Index = () => {
             </div>
             <div className="flex items-center space-x-4">
               <ThemeToggle />
-              <div className="flex items-center space-x-2 text-sm text-gray-300">
-                <Calendar className="h-4 w-4" />
-                <span>January 2025</span>
-              </div>
+              <UserMenu />
             </div>
           </div>
         </div>
@@ -81,7 +116,13 @@ const Index = () => {
 
           {/* Calendar Grid Section */}
           <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
-            <h2 className="text-2xl font-bold mb-6">Monthly Progress</h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">Monthly Progress</h2>
+              <MonthNavigation 
+                currentDate={currentDate} 
+                onDateChange={setCurrentDate} 
+              />
+            </div>
             <HabitGrid habits={habits} currentDate={currentDate} />
           </div>
 
@@ -90,7 +131,7 @@ const Index = () => {
             {/* Today's Todo */}
             <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold">Todo list for today (January 1st)</h3>
+                <h3 className="text-xl font-bold">Todo list for today ({getFormattedDate()})</h3>
                 <Button 
                   className="backdrop-blur-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30"
                   size="sm"
@@ -104,7 +145,7 @@ const Index = () => {
 
             {/* Task Progress */}
             <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
-              <h3 className="text-xl font-bold mb-6">Task Progress (January)</h3>
+              <h3 className="text-xl font-bold mb-6">Task Progress ({currentDate.toLocaleDateString('en-US', { month: 'long' })})</h3>
               <div className="space-y-4">
                 {habits.map((habit) => (
                   <div key={habit.id} className="flex justify-between items-center">
