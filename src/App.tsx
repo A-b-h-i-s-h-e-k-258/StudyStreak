@@ -23,10 +23,11 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="*" element={<NotFound />} />
-            <SpeedInsights/>
+            
           </Routes>
         </BrowserRouter>
       </AuthProvider>
+      <SpeedInsights/>
     </TooltipProvider>
   </QueryClientProvider>
 );
