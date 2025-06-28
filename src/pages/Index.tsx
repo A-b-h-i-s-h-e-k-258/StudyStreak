@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, TrendingUp, Target } from 'lucide-react';
@@ -13,7 +14,6 @@ import { AddTaskDialog } from '@/components/AddTaskDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { useHabits } from '@/hooks/useHabits';
 import { useTasks } from '@/hooks/useTasks';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -54,26 +54,6 @@ const Index = () => {
     text: task.title,
     completed: task.status === 'completed'
   }));
-
-  // Prepare data for pie chart
-  const pieChartData = habits.map((habit, index) => ({
-    name: habit.name,
-    value: Math.round((habit.completed / (habit.goal || 1)) * 100),
-    completed: habit.completed,
-    goal: habit.goal
-  }));
-
-  // Colors for pie chart segments
-  const COLORS = [
-    '#10B981', // emerald-500
-    '#3B82F6', // blue-500
-    '#8B5CF6', // violet-500
-    '#F59E0B', // amber-500
-    '#EF4444', // red-500
-    '#06B6D4', // cyan-500
-    '#84CC16', // lime-500
-    '#EC4899', // pink-500
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
@@ -134,69 +114,20 @@ const Index = () => {
               <h3 className="text-xl font-bold mb-6">
                 Task Progress ({currentDate.toLocaleDateString('en-US', { month: 'long' })})
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Progress List */}
-                <div className="space-y-4">
-                  {habits.map(habit => (
-                    <div key={habit.id} className="flex justify-between items-center">
-                      <span className="text-gray-300">{habit.name}</span>
-                      <span className="text-gray-400">
-                        {Math.round((habit.completed / habit.goal) * 100)}%
-                      </span>
-                    </div>
-                  ))}
-                  {habits.length === 0 && (
-                    <div className="text-gray-400 text-center py-4">
-                      No habits yet. Start by adding some habits to track!
-                    </div>
-                  )}
-                </div>
-
-                {/* Pie Chart */}
-                <div className="h-64">
-                  {habits.length > 0 ? (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={pieChartData}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey="value"
-                          label={({ name, value }) => `${name}: ${value}%`}
-                        >
-                          {pieChartData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip 
-                          formatter={(value, name, props) => [
-                            `${props.payload.completed}/${props.payload.goal} (${value}%)`, 
-                            name
-                          ]}
-                          contentStyle={{
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            borderRadius: '8px',
-                            color: 'white'
-                          }}
-                        />
-                        <Legend 
-                          wrapperStyle={{ color: 'white' }}
-                          formatter={(value) => <span style={{ color: 'white' }}>{value}</span>}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-gray-400">
-                      <div className="text-center">
-                        <div className="text-4xl mb-2">📊</div>
-                        <div>No data to display</div>
-                      </div>
-                    </div>
-                  )}
-                </div>
+              <div className="space-y-4">
+                {habits.map(habit => (
+                  <div key={habit.id} className="flex justify-between items-center">
+                    <span className="text-gray-300">{habit.name}</span>
+                    <span className="text-gray-400">
+                      {Math.round((habit.completed / habit.goal) * 100)}%
+                    </span>
+                  </div>
+                ))}
+                {habits.length === 0 && (
+                  <div className="text-gray-400 text-center py-4">
+                    No habits yet. Start by adding some habits to track!
+                  </div>
+                )}
               </div>
             </div>
           </div>
