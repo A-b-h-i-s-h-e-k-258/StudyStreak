@@ -55,6 +55,43 @@ const Index = () => {
     completed: task.status === 'completed'
   }));
 
+  // Mini pie chart component
+  const MiniPieChart = ({ percentage }: { percentage: number }) => {
+    const radius = 12;
+    const circumference = 2 * Math.PI * radius;
+    const strokeDasharray = circumference;
+    const strokeDashoffset = circumference - (percentage / 100) * circumference;
+
+    return (
+      <div className="relative inline-flex items-center justify-center">
+        <svg width="28" height="28" className="transform -rotate-90">
+          {/* Background circle */}
+          <circle
+            cx="14"
+            cy="14"
+            r={radius}
+            stroke="rgba(255, 255, 255, 0.1)"
+            strokeWidth="2"
+            fill="none"
+          />
+          {/* Progress circle */}
+          <circle
+            cx="14"
+            cy="14"
+            r={radius}
+            stroke="rgb(34, 197, 94)"
+            strokeWidth="2"
+            fill="none"
+            strokeDasharray={strokeDasharray}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
+            className="transition-all duration-300"
+          />
+        </svg>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
       {/* Glass Navigation */}
@@ -115,14 +152,20 @@ const Index = () => {
                 Task Progress ({currentDate.toLocaleDateString('en-US', { month: 'long' })})
               </h3>
               <div className="space-y-4">
-                {habits.map(habit => (
-                  <div key={habit.id} className="flex justify-between items-center">
-                    <span className="text-gray-300">{habit.name}</span>
-                    <span className="text-gray-400">
-                      {Math.round((habit.completed / habit.goal) * 100)}%
-                    </span>
-                  </div>
-                ))}
+                {habits.map(habit => {
+                  const percentage = Math.round((habit.completed / habit.goal) * 100);
+                  return (
+                    <div key={habit.id} className="flex justify-between items-center">
+                      <span className="text-gray-300">{habit.name}</span>
+                      <div className="flex items-center space-x-2">
+                        <MiniPieChart percentage={percentage} />
+                        <span className="text-gray-400">
+                          {percentage}%
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
                 {habits.length === 0 && (
                   <div className="text-gray-400 text-center py-4">
                     No habits yet. Start by adding some habits to track!
