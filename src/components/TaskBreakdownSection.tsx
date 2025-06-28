@@ -1,8 +1,8 @@
 
-import { Eye } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { GoalModificationDialog } from './GoalModificationDialog';
+import { ViewStreaksDialog } from './ViewStreaksDialog';
 import { useHabits } from '@/hooks/useHabits';
+import { useHabitUpdates } from '@/hooks/useHabitUpdates';
 
 interface TaskBreakdownSectionProps {
   habits: Array<{
@@ -16,6 +16,7 @@ interface TaskBreakdownSectionProps {
 
 export const TaskBreakdownSection = ({ habits, currentDate }: TaskBreakdownSectionProps) => {
   const { completions } = useHabits();
+  const { updateHabitGoal } = useHabitUpdates();
 
   const getCompletionPercentage = (completions: number, goal: number) => {
     if (goal === 0) return 0;
@@ -37,20 +38,68 @@ export const TaskBreakdownSection = ({ habits, currentDate }: TaskBreakdownSecti
     let tempStreak = 1;
     let activeDays = habitCompletions.length;
 
-    // Calculate current streak
+    // Calculate current streak starting from today
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    for (let i = 0; i < habitCompletions.length; i++) {
-      const completionDate = new Date(habitCompletions[i]);
+    // Check if today is completed
+    const todayCompleted = habitCompletions.some(date => {
+      const completionDate = new Date(date);
       completionDate.setHours(0, 0, 0, 0);
+      return completionDate.getTime() === today.getTime();
+    });
+
+    if (todayCompleted) {
+      currentStreak = 1;
       
-      const daysDiff = Math.floor((today.getTime() - completionDate.getTime()) / (1000 * 60 * 60 * 24));
+      // Count consecutive days going backwards
+      for (let i = 1; i < 365; i++) { // Check up to a year back
+        const checkDate = new Date(today);
+        checkDate.setDate(today.getDate() - i);
+        
+        const dayCompleted = habitCompletions.some(date => {
+          const completionDate = new Date(date);
+          completionDate.setHours(0, 0, 0, 0);
+          return completionDate.getTime() === checkDate.getTime();
+        });
+        
+        if (dayCompleted) {
+          currentStreak++;
+        } else {
+          break;
+        }
+      }
+    } else {
+      // Check if yesterday was completed to continue streak
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
       
-      if (daysDiff === i) {
-        currentStreak++;
-      } else {
-        break;
+      const yesterdayCompleted = habitCompletions.some(date => {
+        const completionDate = new Date(date);
+        completionDate.setHours(0, 0, 0, 0);
+        return completionDate.getTime() === yesterday.getTime();
+      });
+      
+      if (yesterdayCompleted) {
+        currentStreak = 1;
+        
+        // Count consecutive days going backwards from yesterday
+        for (let i = 2; i < 365; i++) {
+          const checkDate = new Date(today);
+          checkDate.setDate(today.getDate() - i);
+          
+          const dayCompleted = habitCompletions.some(date => {
+            const completionDate = new Date(date);
+            completionDate.setHours(0, 0, 0, 0);
+            return completionDate.getTime() === checkDate.getTime();
+          });
+          
+          if (dayCompleted) {
+            currentStreak++;
+          } else {
+            break;
+          }
+        }
       }
     }
 
@@ -68,12 +117,13 @@ export const TaskBreakdownSection = ({ habits, currentDate }: TaskBreakdownSecti
       }
     }
     bestStreak = Math.max(bestStreak, tempStreak);
+    bestStreak = Math.max(bestStreak, currentStreak);
 
     return { currentStreak, bestStreak, activeDays };
   };
 
   const handleGoalSave = (taskId: string, newGoal: number) => {
-    console.log(`Goal for task ${taskId} updated to ${newGoal}`);
+    updateHabitGoal({ habitId: taskId, newGoal });
   };
 
   if (habits.length === 0) {
@@ -100,14 +150,10 @@ export const TaskBreakdownSection = ({ habits, currentDate }: TaskBreakdownSecti
                   currentGoal={habit.goal}
                   onGoalSave={(newGoal) => handleGoalSave(habit.id, newGoal)}
                 />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
-                >
-                  <Eye className="h-4 w-4 mr-1" />
-                  View Streaks
-                </Button>
+                <ViewStreaksDialog 
+                  habitId={habit.id}
+                  habitName={habit.name}
+                />
                 <div className="px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-sm font-medium">
                   {getCompletionPercentage(habit.completed, habit.goal)}% Complete
                 </div>
@@ -148,7 +194,7 @@ export const TaskBreakdownSection = ({ habits, currentDate }: TaskBreakdownSecti
               <div className="w-full bg-gray-700/50 rounded-full h-2">
                 <div 
                   className="bg-gradient-to-r from-emerald-500 to-blue-500 h-2 rounded-full transition-all duration-300"
-                  style={{ width: habit.goal === 0 ? '0%' : `${(habit.completed / habit.goal) * 100}%` }}
+                  style={{ width: habit.goal === 0 ? '0%' : `${Math.min((habit.completed / habit.goal) * 100, 100)}%` }}
                 />
               </div>
               <div className="text-right text-xs text-gray-400">
