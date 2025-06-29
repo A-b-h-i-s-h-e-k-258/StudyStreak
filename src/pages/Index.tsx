@@ -10,9 +10,11 @@ import { TaskBreakdownSection } from '@/components/TaskBreakdownSection';
 import { MonthNavigation } from '@/components/MonthNavigation';
 import { UserMenu } from '@/components/UserMenu';
 import { AddTaskDialog } from '@/components/AddTaskDialog';
+import { Footer } from '@/components/Footer';
 import { useAuth } from '@/hooks/useAuth';
 import { useHabits } from '@/hooks/useHabits';
 import { useTasks } from '@/hooks/useTasks';
+
 const Index = () => {
   const {
     user,
@@ -101,7 +103,10 @@ const Index = () => {
         {/* Main Content */}
         <div className="mt-8 space-y-8">
           {/* All Tasks Todo - Full Width */}
-          
+          <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
+            <h3 className="text-xl font-bold mb-6">All Tasks ({getFormattedDate()})</h3>
+            <TodoSection todos={allTodos} />
+          </div>
 
           {/* Task Progress - Full Width */}
           <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
@@ -147,6 +152,9 @@ const Index = () => {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>;
 };
 export default Index;
