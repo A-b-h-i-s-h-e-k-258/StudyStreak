@@ -93,9 +93,9 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900 bg-white text-slate-900 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
       {/* Glass Navigation */}
-      <nav className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-white/5 border-b border-slate-200 dark:border-white/10">
+      <nav className="sticky top-0 z-50 backdrop-blur-xl bg-white/5 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
@@ -119,7 +119,7 @@ const Index = () => {
         {/* Main Content */}
         <div className="mt-8 space-y-8">
           {/* Calendar Grid Section */}
-          <div className="backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-white/10 p-6 bg-white/80 dark:bg-slate-950">
+          <div className="backdrop-blur-xl rounded-2xl border border-white/10 p-6 bg-slate-950">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">Monthly Progress</h2>
               <MonthNavigation currentDate={currentDate} onDateChange={setCurrentDate} />
@@ -128,7 +128,7 @@ const Index = () => {
           </div>
 
           {/* Task Breakdown Section - Now below Monthly Progress */}
-          <div className="backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-white/10 p-6 bg-white/80 dark:bg-slate-900">
+          <div className="backdrop-blur-xl rounded-2xl border border-white/10 p-6 bg-slate-900">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">Task Breakdown</h2>
             </div>
@@ -138,7 +138,7 @@ const Index = () => {
           {/* Bottom Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Today's Todo */}
-            <div className="backdrop-blur-xl bg-white/80 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 p-6">
+            <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold">Todo list for today ({getFormattedDate()})</h3>
                 <AddTaskDialog />
@@ -147,7 +147,7 @@ const Index = () => {
             </div>
 
             {/* Task Progress */}
-            <div className="backdrop-blur-xl bg-white/80 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 p-6">
+            <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
               <h3 className="text-xl font-bold mb-6">
                 Task Progress ({currentDate.toLocaleDateString('en-US', { month: 'long' })})
               </h3>
@@ -156,10 +156,10 @@ const Index = () => {
                   const percentage = Math.round((habit.completed / habit.goal) * 100);
                   return (
                     <div key={habit.id} className="flex justify-between items-center">
-                      <span className="text-slate-600 dark:text-gray-300">{habit.name}</span>
+                      <span className="text-gray-300">{habit.name}</span>
                       <div className="flex items-center space-x-2">
                         <MiniPieChart percentage={percentage} />
-                        <span className="text-slate-500 dark:text-gray-400">
+                        <span className="text-gray-400">
                           {percentage}%
                         </span>
                       </div>
@@ -167,7 +167,7 @@ const Index = () => {
                   );
                 })}
                 {habits.length === 0 && (
-                  <div className="text-slate-500 dark:text-gray-400 text-center py-4">
+                  <div className="text-gray-400 text-center py-4">
                     No habits yet. Start by adding some habits to track!
                   </div>
                 )}
