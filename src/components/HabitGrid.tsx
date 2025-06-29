@@ -1,5 +1,6 @@
 
 import { useHabits } from '@/hooks/useHabits';
+import { useTasks } from '@/hooks/useTasks';
 import { AddHabitDialog } from './AddHabitDialog';
 
 interface HabitGridProps {
@@ -14,6 +15,7 @@ interface HabitGridProps {
 
 export const HabitGrid = ({ habits, currentDate }: HabitGridProps) => {
   const { toggleCompletion, completions, isToggling } = useHabits();
+  const { tasks, updateTaskStatus } = useTasks();
 
   const getDaysInMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -34,7 +36,27 @@ export const HabitGrid = ({ habits, currentDate }: HabitGridProps) => {
     const dateStr = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
       .toISOString()
       .split('T')[0];
+    
     toggleCompletion({ habitId, date: dateStr });
+    
+    // Also sync with corresponding tasks if it's today
+    const today = new Date().toISOString().split('T')[0];
+    if (dateStr === today) {
+      const habit = habits.find(h => h.id === habitId);
+      if (habit) {
+        // Find matching task by name similarity
+        const matchingTask = tasks.find(task => 
+          task.title.toLowerCase().includes(habit.name.toLowerCase()) ||
+          habit.name.toLowerCase().includes(task.title.toLowerCase())
+        );
+        
+        if (matchingTask) {
+          const isCurrentlyCompleted = isDateCompleted(habitId, day);
+          const newTaskStatus = isCurrentlyCompleted ? 'pending' : 'completed';
+          updateTaskStatus({ taskId: matchingTask.id, status: newTaskStatus });
+        }
+      }
+    }
   };
 
   const daysInMonth = getDaysInMonth(currentDate);
