@@ -20,7 +20,7 @@ const Index = () => {
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
   const { habits, isLoading: habitsLoading } = useHabits();
-  const { todaysTasks, isLoading: tasksLoading } = useTasks();
+  const { tasks, isLoading: tasksLoading } = useTasks();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -48,8 +48,8 @@ const Index = () => {
     return `${months[today.getMonth()]} ${day}${suffix}`;
   };
 
-  // Convert tasks to todo format for TodoSection
-  const todaysTodos = todaysTasks.map(task => ({
+  // Convert all tasks to todo format for TodoSection
+  const allTodos = tasks.map(task => ({
     id: task.id,
     text: task.title,
     completed: task.status === 'completed'
@@ -118,32 +118,15 @@ const Index = () => {
 
         {/* Main Content */}
         <div className="mt-8 space-y-8">
-          {/* Calendar Grid Section */}
-          <div className="backdrop-blur-xl rounded-2xl border border-white/10 p-6 bg-slate-950">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">Monthly Progress</h2>
-              <MonthNavigation currentDate={currentDate} onDateChange={setCurrentDate} />
-            </div>
-            <HabitGrid habits={habits} currentDate={currentDate} />
-          </div>
-
-          {/* Task Breakdown Section - Now below Monthly Progress */}
-          <div className="backdrop-blur-xl rounded-2xl border border-white/10 p-6 bg-slate-900">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">Task Breakdown</h2>
-            </div>
-            <TaskBreakdownSection habits={habits} currentDate={currentDate} />
-          </div>
-
-          {/* Bottom Section */}
+          {/* Todo and Task Progress Section - Moved to top */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Today's Todo */}
+            {/* All Tasks Todo */}
             <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold">Todo list for today ({getFormattedDate()})</h3>
+                <h3 className="text-xl font-bold">All Tasks</h3>
                 <AddTaskDialog />
               </div>
-              <TodoSection todos={todaysTodos} />
+              <TodoSection todos={allTodos} />
             </div>
 
             {/* Task Progress */}
@@ -173,6 +156,23 @@ const Index = () => {
                 )}
               </div>
             </div>
+          </div>
+
+          {/* Calendar Grid Section */}
+          <div className="backdrop-blur-xl rounded-2xl border border-white/10 p-6 bg-slate-950">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">Monthly Progress</h2>
+              <MonthNavigation currentDate={currentDate} onDateChange={setCurrentDate} />
+            </div>
+            <HabitGrid habits={habits} currentDate={currentDate} />
+          </div>
+
+          {/* Task Breakdown Section */}
+          <div className="backdrop-blur-xl rounded-2xl border border-white/10 p-6 bg-slate-900">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">Task Breakdown</h2>
+            </div>
+            <TaskBreakdownSection habits={habits} currentDate={currentDate} />
           </div>
         </div>
       </div>
