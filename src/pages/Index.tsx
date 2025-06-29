@@ -118,43 +118,40 @@ const Index = () => {
 
         {/* Main Content */}
         <div className="mt-8 space-y-8">
-          {/* Todo and Task Progress Section - Moved to top */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* All Tasks Todo */}
-            <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold">All Tasks</h3>
-                <AddTaskDialog />
-              </div>
-              <TodoSection todos={allTodos} />
+          {/* All Tasks Todo - Full Width */}
+          <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold">All Tasks</h3>
+              <AddTaskDialog />
             </div>
+            <TodoSection todos={allTodos} />
+          </div>
 
-            {/* Task Progress */}
-            <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
-              <h3 className="text-xl font-bold mb-6">
-                Task Progress ({currentDate.toLocaleDateString('en-US', { month: 'long' })})
-              </h3>
-              <div className="space-y-4">
-                {habits.map(habit => {
-                  const percentage = Math.round((habit.completed / habit.goal) * 100);
-                  return (
-                    <div key={habit.id} className="flex justify-between items-center">
-                      <span className="text-gray-300">{habit.name}</span>
-                      <div className="flex items-center space-x-2">
-                        <MiniPieChart percentage={percentage} />
-                        <span className="text-gray-400">
-                          {percentage}%
-                        </span>
-                      </div>
+          {/* Task Progress - Full Width */}
+          <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
+            <h3 className="text-xl font-bold mb-6">
+              Task Progress ({currentDate.toLocaleDateString('en-US', { month: 'long' })})
+            </h3>
+            <div className="space-y-4">
+              {habits.map(habit => {
+                const percentage = Math.round((habit.completed / habit.goal) * 100);
+                return (
+                  <div key={habit.id} className="flex justify-between items-center">
+                    <span className="text-gray-300">{habit.name}</span>
+                    <div className="flex items-center space-x-2">
+                      <MiniPieChart percentage={percentage} />
+                      <span className="text-gray-400">
+                        {percentage}%
+                      </span>
                     </div>
-                  );
-                })}
-                {habits.length === 0 && (
-                  <div className="text-gray-400 text-center py-4">
-                    No habits yet. Start by adding some habits to track!
                   </div>
-                )}
-              </div>
+                );
+              })}
+              {habits.length === 0 && (
+                <div className="text-gray-400 text-center py-4">
+                  No habits yet. Start by adding some habits to track!
+                </div>
+              )}
             </div>
           </div>
 
