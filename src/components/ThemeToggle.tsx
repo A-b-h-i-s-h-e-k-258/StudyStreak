@@ -17,7 +17,7 @@ export const ThemeToggle = () => {
       <Button
         variant="ghost"
         size="sm"
-        className="backdrop-blur-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 rounded-full px-4 transition-all duration-300"
+        className="backdrop-blur-xl bg-white/10 dark:bg-black/20 border border-white/20 dark:border-gray-300 text-white dark:text-gray-700 hover:bg-white/20 dark:hover:bg-gray-100 rounded-full px-4 transition-all duration-300"
       >
         <Sun className="h-4 w-4 mr-2" />
         <span className="text-sm font-medium">Light Mode</span>
@@ -32,7 +32,7 @@ export const ThemeToggle = () => {
       variant="ghost"
       size="sm"
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
-      className="backdrop-blur-xl bg-white/10 dark:bg-black/20 border border-white/20 dark:border-white/10 text-white dark:text-gray-200 hover:bg-white/20 dark:hover:bg-white/10 rounded-full px-4 transition-all duration-300 hover:scale-105"
+      className="backdrop-blur-xl bg-white/10 dark:bg-gray-100 border border-white/20 dark:border-gray-300 text-white dark:text-gray-700 hover:bg-white/20 dark:hover:bg-gray-200 rounded-full px-4 transition-all duration-300 hover:scale-105"
     >
       {isDark ? (
         <>
