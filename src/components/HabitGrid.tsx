@@ -1,8 +1,20 @@
-
 import { useHabits } from '@/hooks/useHabits';
 import { useTasks } from '@/hooks/useTasks';
 import { AddHabitDialog } from './AddHabitDialog';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { Trash } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface HabitGridProps {
   habits: Array<{
@@ -15,7 +27,7 @@ interface HabitGridProps {
 }
 
 export const HabitGrid = ({ habits, currentDate }: HabitGridProps) => {
-  const { toggleCompletion, completions, isToggling } = useHabits();
+  const { toggleCompletion, completions, isToggling, deleteHabit, isDeleting } = useHabits();
   const { tasks, updateTaskStatus } = useTasks();
 
   const getDaysInMonth = (date: Date) => {
@@ -71,6 +83,10 @@ export const HabitGrid = ({ habits, currentDate }: HabitGridProps) => {
     }
   };
 
+  const handleDeleteHabit = (habitId: string) => {
+    deleteHabit(habitId);
+  };
+
   const daysInMonth = getDaysInMonth(currentDate);
   const firstDayOfMonth = getFirstDayOfMonth(currentDate);
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
@@ -85,7 +101,7 @@ export const HabitGrid = ({ habits, currentDate }: HabitGridProps) => {
   if (habits.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-400 mb-4">No habits to track yet.</p>
+        <p className="text-gray-400 dark:text-gray-500 mb-4">No habits to track yet.</p>
         <AddHabitDialog />
       </div>
     );
@@ -94,7 +110,7 @@ export const HabitGrid = ({ habits, currentDate }: HabitGridProps) => {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <div className="text-sm text-gray-400">
+        <div className="text-sm text-gray-400 dark:text-gray-500">
           Click on days to mark habits as completed • Green = completed
         </div>
         <AddHabitDialog />
@@ -105,12 +121,45 @@ export const HabitGrid = ({ habits, currentDate }: HabitGridProps) => {
         const progressPercentage = Math.round((completedThisMonth / daysInMonth) * 100);
         
         return (
-          <div key={habit.id} className="space-y-4 p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+          <div key={habit.id} className="space-y-4 p-6 rounded-xl bg-white/5 dark:bg-black/20 border border-white/10 dark:border-white/5 backdrop-blur-sm">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
               <div className="flex-1">
-                <h4 className="font-semibold text-white text-lg mb-2">{habit.name}</h4>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold text-white dark:text-gray-100 text-lg">{habit.name}</h4>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10 p-1 h-8 w-8"
+                        disabled={isDeleting}
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="bg-slate-900 border border-white/10 text-white">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Habit</AlertDialogTitle>
+                        <AlertDialogDescription className="text-gray-300">
+                          Are you sure you want to delete "{habit.name}"? This will permanently remove the habit and all its completion data for all months. This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel className="bg-white/10 border-white/20 text-white hover:bg-white/20">
+                          Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleDeleteHabit(habit.id)}
+                          className="bg-red-600 hover:bg-red-700 text-white"
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-sm text-gray-300">
+                  <span className="text-sm text-gray-300 dark:text-gray-400">
                     {completedThisMonth}/{daysInMonth} days
                   </span>
                   <span className="text-sm text-emerald-400 font-medium">
@@ -122,7 +171,7 @@ export const HabitGrid = ({ habits, currentDate }: HabitGridProps) => {
               <div className="w-full sm:w-48">
                 <Progress 
                   value={progressPercentage} 
-                  className="h-2 bg-white/10"
+                  className="h-2 bg-white/10 dark:bg-black/20"
                 />
               </div>
             </div>
@@ -130,7 +179,7 @@ export const HabitGrid = ({ habits, currentDate }: HabitGridProps) => {
             <div className="grid grid-cols-7 gap-2">
               {/* Day headers */}
               {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => (
-                <div key={day} className="text-center text-xs text-gray-500 p-2 font-medium">
+                <div key={day} className="text-center text-xs text-gray-500 dark:text-gray-400 p-2 font-medium">
                   {day}
                 </div>
               ))}
@@ -155,7 +204,7 @@ export const HabitGrid = ({ habits, currentDate }: HabitGridProps) => {
                       hover:scale-105 active:scale-95 transform
                       ${isCompleted 
                         ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25 hover:bg-emerald-400' 
-                        : 'bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white'
+                        : 'bg-white/10 dark:bg-black/20 text-gray-300 dark:text-gray-400 hover:bg-white/20 dark:hover:bg-white/10 hover:text-white dark:hover:text-gray-100'
                       }
                       ${isToday ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-transparent' : ''}
                       disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
@@ -174,7 +223,7 @@ export const HabitGrid = ({ habits, currentDate }: HabitGridProps) => {
             {/* Streak indicator */}
             {completedThisMonth > 0 && (
               <div className="flex items-center justify-center pt-2">
-                <div className="text-xs text-gray-400 bg-white/5 px-3 py-1 rounded-full">
+                <div className="text-xs text-gray-400 dark:text-gray-500 bg-white/5 dark:bg-black/20 px-3 py-1 rounded-full">
                   🔥 {completedThisMonth} days this month
                 </div>
               </div>

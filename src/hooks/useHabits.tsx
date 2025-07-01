@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -98,6 +97,48 @@ export const useHabits = () => {
     },
   });
 
+  // Delete habit mutation
+  const deleteHabitMutation = useMutation({
+    mutationFn: async (habitId: string) => {
+      if (!user?.id) throw new Error('User not authenticated');
+      
+      // First delete all completions for this habit
+      const { error: completionsError } = await supabase
+        .from('habit_completions')
+        .delete()
+        .eq('habit_id', habitId)
+        .eq('user_id', user.id);
+      
+      if (completionsError) throw completionsError;
+      
+      // Then delete the habit itself
+      const { error: habitError } = await supabase
+        .from('habits')
+        .delete()
+        .eq('id', habitId)
+        .eq('user_id', user.id);
+      
+      if (habitError) throw habitError;
+      
+      return habitId;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['habits', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['habit_completions', user?.id] });
+      toast({
+        title: "Success",
+        description: "Habit deleted successfully!",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Toggle habit completion mutation
   const toggleCompletionMutation = useMutation({
     mutationFn: async ({ habitId, date }: { habitId: string; date: string }) => {
@@ -175,8 +216,10 @@ export const useHabits = () => {
     isLoading,
     error,
     createHabit: createHabitMutation.mutate,
+    deleteHabit: deleteHabitMutation.mutate,
     toggleCompletion: toggleCompletionMutation.mutate,
     isCreating: createHabitMutation.isPending,
+    isDeleting: deleteHabitMutation.isPending,
     isToggling: toggleCompletionMutation.isPending,
   };
 };

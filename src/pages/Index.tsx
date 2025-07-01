@@ -95,9 +95,9 @@ const Index = () => {
         </svg>
       </div>;
   };
-  return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+  return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-white dark:text-gray-100">
       {/* Glass Navigation */}
-      <nav className="sticky top-0 z-50 backdrop-blur-xl bg-white/5 border-b border-white/10">
+      <nav className="sticky top-0 z-50 backdrop-blur-xl bg-white/5 dark:bg-black/10 border-b border-white/10 dark:border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
@@ -120,12 +120,9 @@ const Index = () => {
 
         {/* Main Content */}
         <div className="mt-8 space-y-8">
-          {/* All Tasks Todo - Full Width */}
-          
-
           {/* Task Progress - Full Width with enhanced styling */}
-          <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
-            <h3 className="text-xl font-bold mb-6">
+          <div className="backdrop-blur-xl bg-white/5 dark:bg-black/10 rounded-2xl border border-white/10 dark:border-white/5 p-6">
+            <h3 className="text-xl font-bold mb-6 text-white dark:text-gray-100">
               Task Progress ({currentDate.toLocaleDateString('en-US', {
               month: 'long',
               year: 'numeric'
@@ -134,35 +131,35 @@ const Index = () => {
             <div className="space-y-6">
               {habitsWithSelectedMonthProgress.map(habit => {
               const percentage = habit.goal > 0 ? Math.round(habit.completed / habit.goal * 100) : 0;
-              return <div key={habit.id} className="flex justify-between items-center p-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-200">
-                    <span className="text-gray-200 font-medium">{habit.name}</span>
+              return <div key={habit.id} className="flex justify-between items-center p-4 rounded-lg bg-white/5 dark:bg-black/10 border border-white/10 dark:border-white/5 hover:bg-white/10 dark:hover:bg-white/5 transition-all duration-200">
+                    <span className="text-gray-200 dark:text-gray-300 font-medium">{habit.name}</span>
                     <div className="flex items-center space-x-3">
                       <MiniPieChart percentage={percentage} />
-                      <span className="text-gray-300 min-w-[3rem] text-right">
+                      <span className="text-gray-300 dark:text-gray-400 min-w-[3rem] text-right">
                         {percentage}%
                       </span>
                     </div>
                   </div>;
             })}
-              {habitsWithSelectedMonthProgress.length === 0 && <div className="text-gray-400 text-center py-8">
+              {habitsWithSelectedMonthProgress.length === 0 && <div className="text-gray-400 dark:text-gray-500 text-center py-8">
                   No habits yet. Start by adding some habits to track!
                 </div>}
             </div>
           </div>
 
           {/* Enhanced Calendar Grid Section */}
-          <div className="backdrop-blur-xl rounded-2xl border border-white/10 p-6 bg-slate-950/50">
+          <div className="backdrop-blur-xl rounded-2xl border border-white/10 dark:border-white/5 p-6 bg-slate-950/50 dark:bg-gray-900/50">
             <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 gap-4">
-              <h2 className="text-2xl font-bold">Monthly Progress</h2>
+              <h2 className="text-2xl font-bold text-white dark:text-gray-100">Monthly Progress</h2>
               <MonthNavigation currentDate={currentDate} onDateChange={setCurrentDate} />
             </div>
             <HabitGrid habits={habitsWithSelectedMonthProgress} currentDate={currentDate} />
           </div>
 
           {/* Task Breakdown Section */}
-          <div className="backdrop-blur-xl rounded-2xl border border-white/10 p-6 bg-slate-900/50">
+          <div className="backdrop-blur-xl rounded-2xl border border-white/10 dark:border-white/5 p-6 bg-slate-900/50 dark:bg-gray-800/50">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">Task Breakdown</h2>
+              <h2 className="text-2xl font-bold text-white dark:text-gray-100">Task Breakdown</h2>
             </div>
             <TaskBreakdownSection habits={habitsWithSelectedMonthProgress} currentDate={currentDate} />
           </div>
