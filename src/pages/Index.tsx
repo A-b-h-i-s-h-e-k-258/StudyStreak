@@ -57,7 +57,7 @@ const Index = () => {
     completed: task.status === 'completed'
   }));
 
-  // Mini pie chart component
+  // Mini pie chart component with improved styling
   const MiniPieChart = ({
     percentage
   }: {
@@ -72,10 +72,20 @@ const Index = () => {
           {/* Background circle */}
           <circle cx="14" cy="14" r={radius} stroke="rgba(255, 255, 255, 0.1)" strokeWidth="2" fill="none" />
           {/* Progress circle */}
-          <circle cx="14" cy="14" r={radius} stroke="rgb(34, 197, 94)" strokeWidth="2" fill="none" strokeDasharray={strokeDasharray} strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="transition-all duration-300" />
+          <circle 
+            cx="14" cy="14" r={radius} 
+            stroke="rgb(34, 197, 94)" 
+            strokeWidth="2" 
+            fill="none" 
+            strokeDasharray={strokeDasharray} 
+            strokeDashoffset={strokeDashoffset} 
+            strokeLinecap="round" 
+            className="transition-all duration-500 ease-in-out" 
+          />
         </svg>
       </div>;
   };
+
   return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
       {/* Glass Navigation */}
       <nav className="sticky top-0 z-50 backdrop-blur-xl bg-white/5 border-b border-white/10">
@@ -102,37 +112,40 @@ const Index = () => {
         {/* Main Content */}
         <div className="mt-8 space-y-8">
           {/* All Tasks Todo - Full Width */}
-          
+          <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
+            <h3 className="text-xl font-bold mb-6">All Tasks ({getFormattedDate()})</h3>
+            <TodoSection todos={allTodos} />
+          </div>
 
-          {/* Task Progress - Full Width */}
+          {/* Task Progress - Full Width with enhanced styling */}
           <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
             <h3 className="text-xl font-bold mb-6">
               Task Progress ({currentDate.toLocaleDateString('en-US', {
               month: 'long'
             })})
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {habits.map(habit => {
-              const percentage = Math.round(habit.completed / habit.goal * 100);
-              return <div key={habit.id} className="flex justify-between items-center">
-                    <span className="text-gray-300">{habit.name}</span>
-                    <div className="flex items-center space-x-2">
+                const percentage = Math.round(habit.completed / habit.goal * 100);
+                return <div key={habit.id} className="flex justify-between items-center p-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-200">
+                    <span className="text-gray-200 font-medium">{habit.name}</span>
+                    <div className="flex items-center space-x-3">
                       <MiniPieChart percentage={percentage} />
-                      <span className="text-gray-400">
+                      <span className="text-gray-300 min-w-[3rem] text-right">
                         {percentage}%
                       </span>
                     </div>
                   </div>;
-            })}
-              {habits.length === 0 && <div className="text-gray-400 text-center py-4">
+              })}
+              {habits.length === 0 && <div className="text-gray-400 text-center py-8">
                   No habits yet. Start by adding some habits to track!
                 </div>}
             </div>
           </div>
 
-          {/* Calendar Grid Section */}
-          <div className="backdrop-blur-xl rounded-2xl border border-white/10 p-6 bg-slate-950">
-            <div className="flex justify-between items-center mb-6">
+          {/* Enhanced Calendar Grid Section */}
+          <div className="backdrop-blur-xl rounded-2xl border border-white/10 p-6 bg-slate-950/50">
+            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 gap-4">
               <h2 className="text-2xl font-bold">Monthly Progress</h2>
               <MonthNavigation currentDate={currentDate} onDateChange={setCurrentDate} />
             </div>
@@ -140,7 +153,7 @@ const Index = () => {
           </div>
 
           {/* Task Breakdown Section */}
-          <div className="backdrop-blur-xl rounded-2xl border border-white/10 p-6 bg-slate-900">
+          <div className="backdrop-blur-xl rounded-2xl border border-white/10 p-6 bg-slate-900/50">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">Task Breakdown</h2>
             </div>
