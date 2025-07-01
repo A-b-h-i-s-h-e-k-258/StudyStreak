@@ -18,6 +18,24 @@ export const TaskBreakdownSection = ({ habits, currentDate }: TaskBreakdownSecti
   const { completions } = useHabits();
   const { updateHabitGoal } = useHabitUpdates();
 
+  // Filter completions for the selected month
+  const getMonthCompletions = (habitId: string) => {
+    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    
+    return completions.filter(c => {
+      if (c.habit_id !== habitId) return false;
+      const completionDate = new Date(c.completion_date);
+      return completionDate >= startOfMonth && completionDate <= endOfMonth;
+    }).length;
+  };
+
+  // Update habits with the selected month's completion data
+  const habitsWithMonthProgress = habits.map(habit => ({
+    ...habit,
+    completed: getMonthCompletions(habit.id)
+  }));
+
   const getCompletionPercentage = (completions: number, goal: number) => {
     if (goal === 0) return 0;
     return Math.round((completions / goal) * 100);
@@ -126,7 +144,7 @@ export const TaskBreakdownSection = ({ habits, currentDate }: TaskBreakdownSecti
     updateHabitGoal({ habitId: taskId, newGoal });
   };
 
-  if (habits.length === 0) {
+  if (habitsWithMonthProgress.length === 0) {
     return (
       <div className="text-center py-8 text-gray-400">
         No habits to track yet. Add some habits in the Monthly Progress section above!
@@ -136,7 +154,7 @@ export const TaskBreakdownSection = ({ habits, currentDate }: TaskBreakdownSecti
 
   return (
     <div className="space-y-4">
-      {habits.map((habit) => {
+      {habitsWithMonthProgress.map((habit) => {
         const streaks = calculateStreaks(habit.id);
         
         return (

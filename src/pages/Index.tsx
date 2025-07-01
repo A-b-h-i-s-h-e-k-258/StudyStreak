@@ -14,34 +14,32 @@ import { Footer } from '@/components/Footer';
 import { useAuth } from '@/hooks/useAuth';
 import { useHabits } from '@/hooks/useHabits';
 import { useTasks } from '@/hooks/useTasks';
+
 const Index = () => {
-  const {
-    user,
-    loading
-  } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const {
-    habits,
-    isLoading: habitsLoading
-  } = useHabits();
-  const {
-    tasks,
-    isLoading: tasksLoading
-  } = useTasks();
+  const { habits, completions, isLoading: habitsLoading } = useHabits();
+  const { tasks, isLoading: tasksLoading } = useTasks();
+
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth');
     }
   }, [user, loading, navigate]);
+
   if (loading || habitsLoading || tasksLoading) {
-    return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
         <div className="text-white">Loading...</div>
-      </div>;
+      </div>
+    );
   }
+
   if (!user) {
     return null;
   }
+
   const getFormattedDate = () => {
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     const today = new Date();
@@ -57,12 +55,29 @@ const Index = () => {
     completed: task.status === 'completed'
   }));
 
+  // Get habits with progress for the selected month
+  const getHabitsWithSelectedMonthProgress = () => {
+    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    
+    return habits.map(habit => {
+      const monthCompletions = completions.filter(c => {
+        if (c.habit_id !== habit.id) return false;
+        const completionDate = new Date(c.completion_date);
+        return completionDate >= startOfMonth && completionDate <= endOfMonth;
+      }).length;
+      
+      return {
+        ...habit,
+        completed: monthCompletions
+      };
+    });
+  };
+
+  const habitsWithSelectedMonthProgress = getHabitsWithSelectedMonthProgress();
+
   // Mini pie chart component with improved styling
-  const MiniPieChart = ({
-    percentage
-  }: {
-    percentage: number;
-  }) => {
+  const MiniPieChart = ({ percentage }: { percentage: number }) => {
     const radius = 12;
     const circumference = 2 * Math.PI * radius;
     const strokeDasharray = circumference;
@@ -86,7 +101,8 @@ const Index = () => {
       </div>;
   };
 
-  return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
       {/* Glass Navigation */}
       <nav className="sticky top-0 z-50 backdrop-blur-xl bg-white/5 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -120,14 +136,13 @@ const Index = () => {
           {/* Task Progress - Full Width with enhanced styling */}
           <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-6">
             <h3 className="text-xl font-bold mb-6">
-              Task Progress ({currentDate.toLocaleDateString('en-US', {
-              month: 'long'
-            })})
+              Task Progress ({currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })})
             </h3>
             <div className="space-y-6">
-              {habits.map(habit => {
-                const percentage = Math.round(habit.completed / habit.goal * 100);
-                return <div key={habit.id} className="flex justify-between items-center p-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-200">
+              {habitsWithSelectedMonthProgress.map(habit => {
+                const percentage = habit.goal > 0 ? Math.round((habit.completed / habit.goal) * 100) : 0;
+                return (
+                  <div key={habit.id} className="flex justify-between items-center p-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-200">
                     <span className="text-gray-200 font-medium">{habit.name}</span>
                     <div className="flex items-center space-x-3">
                       <MiniPieChart percentage={percentage} />
@@ -135,11 +150,14 @@ const Index = () => {
                         {percentage}%
                       </span>
                     </div>
-                  </div>;
+                  </div>
+                );
               })}
-              {habits.length === 0 && <div className="text-gray-400 text-center py-8">
+              {habitsWithSelectedMonthProgress.length === 0 && (
+                <div className="text-gray-400 text-center py-8">
                   No habits yet. Start by adding some habits to track!
-                </div>}
+                </div>
+              )}
             </div>
           </div>
 
@@ -149,7 +167,7 @@ const Index = () => {
               <h2 className="text-2xl font-bold">Monthly Progress</h2>
               <MonthNavigation currentDate={currentDate} onDateChange={setCurrentDate} />
             </div>
-            <HabitGrid habits={habits} currentDate={currentDate} />
+            <HabitGrid habits={habitsWithSelectedMonthProgress} currentDate={currentDate} />
           </div>
 
           {/* Task Breakdown Section */}
@@ -157,13 +175,15 @@ const Index = () => {
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">Task Breakdown</h2>
             </div>
-            <TaskBreakdownSection habits={habits} currentDate={currentDate} />
+            <TaskBreakdownSection habits={habitsWithSelectedMonthProgress} currentDate={currentDate} />
           </div>
         </div>
       </div>
 
       {/* Footer */}
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
