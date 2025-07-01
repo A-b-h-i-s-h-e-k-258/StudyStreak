@@ -51,7 +51,7 @@ export const HabitGrid = ({ habits, currentDate }: HabitGridProps) => {
     
     toggleCompletion({ habitId, date: dateStr });
     
-    // Also sync with corresponding tasks if it's today
+    // Only sync with tasks if it's today's date
     const today = new Date().toISOString().split('T')[0];
     if (dateStr === today) {
       const habit = habits.find(h => h.id === habitId);

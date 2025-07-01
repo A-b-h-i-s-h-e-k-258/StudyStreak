@@ -46,24 +46,17 @@ export const useHabits = () => {
     enabled: !!user?.id,
   });
 
-  // Fetch habit completions for current month
+  // Fetch ALL habit completions (not just current month)
   const { data: completions = [] } = useQuery({
     queryKey: ['habit_completions', user?.id],
     queryFn: async () => {
       if (!user?.id) throw new Error('User not authenticated');
       
-      const startOfMonth = new Date();
-      startOfMonth.setDate(1);
-      const endOfMonth = new Date();
-      endOfMonth.setMonth(endOfMonth.getMonth() + 1);
-      endOfMonth.setDate(0);
-      
       const { data, error } = await supabase
         .from('habit_completions')
         .select('*')
         .eq('user_id', user.id)
-        .gte('completion_date', startOfMonth.toISOString().split('T')[0])
-        .lte('completion_date', endOfMonth.toISOString().split('T')[0]);
+        .order('completion_date', { ascending: false });
       
       if (error) throw error;
       return data;
@@ -154,9 +147,22 @@ export const useHabits = () => {
     },
   });
 
-  // Calculate completed count for each habit
+  // Calculate completed count for each habit for the current month
+  const getCurrentMonthCompletions = () => {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    
+    return completions.filter(c => {
+      const completionDate = new Date(c.completion_date);
+      return completionDate >= startOfMonth && completionDate <= endOfMonth;
+    });
+  };
+
+  const currentMonthCompletions = getCurrentMonthCompletions();
+  
   const habitsWithProgress = habits.map(habit => {
-    const habitCompletions = completions.filter(c => c.habit_id === habit.id);
+    const habitCompletions = currentMonthCompletions.filter(c => c.habit_id === habit.id);
     return {
       ...habit,
       completed: habitCompletions.length,
@@ -165,7 +171,7 @@ export const useHabits = () => {
 
   return {
     habits: habitsWithProgress,
-    completions,
+    completions, // Return ALL completions, not just current month
     isLoading,
     error,
     createHabit: createHabitMutation.mutate,
