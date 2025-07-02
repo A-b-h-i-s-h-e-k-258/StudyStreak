@@ -28,6 +28,7 @@ export const UserMenu = () => {
       .slice(0, 2);
   };
 
+  // Use profile data first, then fallback to user metadata
   const displayName = profile?.full_name || user.user_metadata?.full_name || user.email || 'User';
   const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url;
 
@@ -38,7 +39,8 @@ export const UserMenu = () => {
           <Avatar className="h-10 w-10">
             <AvatarImage 
               src={avatarUrl} 
-              alt={displayName} 
+              alt={displayName}
+              key={avatarUrl} // Add key to force re-render when avatar changes
             />
             <AvatarFallback className="bg-emerald-600 text-white">
               {getInitials(displayName)}
