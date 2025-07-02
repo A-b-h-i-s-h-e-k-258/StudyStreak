@@ -76,7 +76,7 @@ export const MonthNavigation = ({
   };
   return <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
       <div className="flex items-center space-x-2">
-        <Button variant="ghost" size="sm" onClick={() => navigateMonth('prev')} className="text-gray-300 dark:text-gray-700 hover:text-white dark:hover:text-black transition-all duration-200 bg-transparent">
+        <Button variant="ghost" size="sm" onClick={() => navigateMonth('prev')} className="transition-all duration-200 bg-transparent text-slate-50">
           <ChevronLeft className="h-4 w-4" />
         </Button>
         
