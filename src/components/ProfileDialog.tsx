@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { User, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,8 +24,19 @@ export const ProfileDialog = ({ children }: ProfileDialogProps) => {
   const { user } = useAuth();
   const { profile, updateProfile, uploading } = useProfile();
   const [open, setOpen] = useState(false);
-  const [fullName, setFullName] = useState(profile?.full_name || user?.user_metadata?.full_name || '');
-  const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || user?.user_metadata?.avatar_url || '');
+  const [fullName, setFullName] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+
+  // Update local state when profile data changes
+  useEffect(() => {
+    if (profile) {
+      setFullName(profile.full_name || '');
+      setAvatarUrl(profile.avatar_url || '');
+    } else if (user) {
+      setFullName(user.user_metadata?.full_name || '');
+      setAvatarUrl(user.user_metadata?.avatar_url || '');
+    }
+  }, [profile, user]);
 
   if (!user) return null;
 
@@ -47,6 +59,7 @@ export const ProfileDialog = ({ children }: ProfileDialogProps) => {
       setOpen(false);
     } catch (error) {
       toast.error('Failed to update profile');
+      console.error('Profile update error:', error);
     }
   };
 
@@ -63,7 +76,12 @@ export const ProfileDialog = ({ children }: ProfileDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {children}
+        <div onClick={(e) => {
+          e.preventDefault();
+          setOpen(true);
+        }}>
+          {children}
+        </div>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>

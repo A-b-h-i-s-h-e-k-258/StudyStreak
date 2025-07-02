@@ -57,7 +57,10 @@ export const UserMenu = () => {
         </div>
         <DropdownMenuSeparator />
         <ProfileDialog>
-          <DropdownMenuItem className="text-foreground hover:bg-accent focus:bg-accent cursor-pointer">
+          <DropdownMenuItem 
+            className="text-foreground hover:bg-accent focus:bg-accent cursor-pointer"
+            onSelect={(e) => e.preventDefault()}
+          >
             <User className="mr-2 h-4 w-4" />
             Profile
           </DropdownMenuItem>
