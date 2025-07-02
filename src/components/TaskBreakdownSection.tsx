@@ -146,7 +146,7 @@ export const TaskBreakdownSection = ({ habits, currentDate }: TaskBreakdownSecti
 
   if (habitsWithMonthProgress.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-400">
+      <div className="text-center py-8 text-gray-400 dark:text-gray-600">
         No habits to track yet. Add some habits in the Monthly Progress section above!
       </div>
     );
@@ -158,10 +158,10 @@ export const TaskBreakdownSection = ({ habits, currentDate }: TaskBreakdownSecti
         const streaks = calculateStreaks(habit.id);
         
         return (
-          <div key={habit.id} className="backdrop-blur-xl bg-white/5 rounded-xl border border-white/10 p-6">
+          <div key={habit.id} className="backdrop-blur-xl bg-white/5 dark:bg-white/60 rounded-xl border border-white/10 dark:border-gray-200 p-6">
             {/* Task Header */}
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">{habit.name}</h3>
+              <h3 className="text-lg font-semibold text-white dark:text-black">{habit.name}</h3>
               <div className="flex items-center space-x-4">
                 <GoalModificationDialog
                   taskName={habit.name}
@@ -181,26 +181,26 @@ export const TaskBreakdownSection = ({ habits, currentDate }: TaskBreakdownSecti
             {/* Stats Row */}
             <div className="grid grid-cols-4 gap-6 mb-4">
               <div>
-                <div className="text-sm text-gray-400">Completions</div>
-                <div className="text-blue-400 font-medium">
+                <div className="text-sm text-gray-400 dark:text-gray-600">Completions</div>
+                <div className="text-blue-400 dark:text-blue-600 font-medium">
                   {habit.completed}/{habit.goal === 0 ? '∞' : habit.goal}
                 </div>
               </div>
               <div>
-                <div className="text-sm text-gray-400">Current Streak</div>
-                <div className="text-emerald-400 font-medium">
+                <div className="text-sm text-gray-400 dark:text-gray-600">Current Streak</div>
+                <div className="text-emerald-400 dark:text-emerald-600 font-medium">
                   {streaks.currentStreak} days
                 </div>
               </div>
               <div>
-                <div className="text-sm text-gray-400">Best Streak</div>
-                <div className="text-purple-400 font-medium">
+                <div className="text-sm text-gray-400 dark:text-gray-600">Best Streak</div>
+                <div className="text-purple-400 dark:text-purple-600 font-medium">
                   {streaks.bestStreak} days
                 </div>
               </div>
               <div>
-                <div className="text-sm text-gray-400">Active Days</div>
-                <div className="text-orange-400 font-medium">
+                <div className="text-sm text-gray-400 dark:text-gray-600">Active Days</div>
+                <div className="text-orange-400 dark:text-orange-600 font-medium">
                   {streaks.activeDays} days
                 </div>
               </div>
@@ -208,14 +208,14 @@ export const TaskBreakdownSection = ({ habits, currentDate }: TaskBreakdownSecti
 
             {/* Progress Bar */}
             <div className="space-y-2">
-              <div className="text-xs text-gray-400">Progress</div>
-              <div className="w-full bg-gray-700/50 rounded-full h-2">
+              <div className="text-xs text-gray-400 dark:text-gray-600">Progress</div>
+              <div className="w-full bg-gray-700/50 dark:bg-gray-200 rounded-full h-2">
                 <div 
                   className="bg-gradient-to-r from-emerald-500 to-blue-500 h-2 rounded-full transition-all duration-300"
                   style={{ width: habit.goal === 0 ? '0%' : `${Math.min((habit.completed / habit.goal) * 100, 100)}%` }}
                 />
               </div>
-              <div className="text-right text-xs text-gray-400">
+              <div className="text-right text-xs text-gray-400 dark:text-gray-600">
                 {habit.completed}/{habit.goal === 0 ? '∞' : habit.goal} goal
               </div>
             </div>

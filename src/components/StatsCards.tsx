@@ -50,21 +50,21 @@ export const StatsCards = () => {
   const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
 
   const stats = [
-    { label: 'Total Completions', value: totalCompletions.toString(), color: 'text-blue-400' },
-    { label: 'Avg Completion', value: `${avgCompletion}%`, color: 'text-emerald-400' },
-    { label: 'Best Streak', value: bestStreak.toString(), color: 'text-purple-400' },
-    { label: 'Active Tasks', value: activeTasks.toString(), color: 'text-orange-400' },
-    { label: 'Days in Month', value: daysInMonth.toString(), color: 'text-red-400' },
+    { label: 'Total Completions', value: totalCompletions.toString(), color: 'text-blue-400 dark:text-blue-600' },
+    { label: 'Avg Completion', value: `${avgCompletion}%`, color: 'text-emerald-400 dark:text-emerald-600' },
+    { label: 'Best Streak', value: bestStreak.toString(), color: 'text-purple-400 dark:text-purple-600' },
+    { label: 'Active Tasks', value: activeTasks.toString(), color: 'text-orange-400 dark:text-orange-600' },
+    { label: 'Days in Month', value: daysInMonth.toString(), color: 'text-red-400 dark:text-red-600' },
   ];
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
       {stats.map((stat, index) => (
-        <div key={index} className="backdrop-blur-xl bg-white/5 rounded-xl border border-white/10 p-4 text-center">
+        <div key={index} className="backdrop-blur-xl bg-white/5 dark:bg-white/60 rounded-xl border border-white/10 dark:border-gray-200 p-4 text-center">
           <div className={`text-2xl font-bold ${stat.color}`}>
             {stat.value}
           </div>
-          <div className="text-gray-400 text-sm mt-1">
+          <div className="text-gray-400 dark:text-gray-700 text-sm mt-1">
             {stat.label}
           </div>
         </div>

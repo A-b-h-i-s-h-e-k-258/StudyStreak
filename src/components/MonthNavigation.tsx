@@ -1,3 +1,4 @@
+
 import { ChevronLeft, ChevronRight, Download, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useHabits } from '@/hooks/useHabits';
@@ -76,32 +77,32 @@ export const MonthNavigation = ({
   };
   return <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
       <div className="flex items-center space-x-2">
-        <Button variant="ghost" size="sm" onClick={() => navigateMonth('prev')} className="text-gray-300 hover:text-white transition-all duration-200 bg-stone-950 hover:bg-stone-800">
+        <Button variant="ghost" size="sm" onClick={() => navigateMonth('prev')} className="text-gray-300 dark:text-gray-700 hover:text-white dark:hover:text-black transition-all duration-200 bg-stone-950 dark:bg-gray-100 hover:bg-stone-800 dark:hover:bg-gray-200">
           <ChevronLeft className="h-4 w-4" />
         </Button>
         
         <div className="text-center min-w-[180px]">
-          <h2 className="text-xl font-semibold text-stone-950">
+          <h2 className="text-xl font-semibold text-stone-950 dark:text-black">
             {months[currentDate.getMonth()]} {currentDate.getFullYear()}
           </h2>
         </div>
         
-        <Button variant="ghost" size="sm" onClick={() => navigateMonth('next')} className="text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200">
+        <Button variant="ghost" size="sm" onClick={() => navigateMonth('next')} className="text-gray-300 dark:text-gray-700 hover:text-white dark:hover:text-black hover:bg-white/10 dark:hover:bg-gray-200 transition-all duration-200">
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
       
       <div className="flex items-center space-x-2">
-        {!isCurrentMonth() && <Button variant="outline" size="sm" onClick={goToCurrentMonth} className="bg-emerald-600/20 border-emerald-500/30 text-emerald-400 hover:bg-emerald-600/30 transition-all duration-200">
+        {!isCurrentMonth() && <Button variant="outline" size="sm" onClick={goToCurrentMonth} className="bg-emerald-600/20 border-emerald-500/30 text-emerald-400 dark:text-emerald-600 hover:bg-emerald-600/30 dark:hover:bg-emerald-100 transition-all duration-200">
             Today
           </Button>}
         
-        <Button variant="ghost" size="sm" onClick={viewTrends} className="text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200">
+        <Button variant="ghost" size="sm" onClick={viewTrends} className="text-gray-300 dark:text-gray-700 hover:text-white dark:hover:text-black hover:bg-white/10 dark:hover:bg-gray-200 transition-all duration-200">
           <TrendingUp className="h-4 w-4" />
           <span className="hidden sm:inline ml-1">Trends</span>
         </Button>
         
-        <Button variant="ghost" size="sm" onClick={exportProgress} className="text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200">
+        <Button variant="ghost" size="sm" onClick={exportProgress} className="text-gray-300 dark:text-gray-700 hover:text-white dark:hover:text-black hover:bg-white/10 dark:hover:bg-gray-200 transition-all duration-200">
           <Download className="h-4 w-4" />
           <span className="hidden sm:inline ml-1">Export</span>
         </Button>
