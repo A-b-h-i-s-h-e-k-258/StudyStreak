@@ -41,7 +41,7 @@ export const useProfile = () => {
 
   const updateProfile = async (updates: {
     full_name?: string;
-    avatar_url?: string;
+    avatar_url?: string | null;
   }) => {
     if (!user) throw new Error('No user found');
 

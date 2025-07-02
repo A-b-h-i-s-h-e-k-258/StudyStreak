@@ -112,6 +112,15 @@ export const ProfileDialog = ({ children }: ProfileDialogProps) => {
                   </span>
                 </Button>
               </Label>
+              {avatarUrl && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setAvatarUrl('')}
+                >
+                  Remove
+                </Button>
+              )}
             </div>
           </div>
 
