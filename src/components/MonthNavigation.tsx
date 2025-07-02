@@ -1,4 +1,3 @@
-
 import { ChevronLeft, ChevronRight, Download, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useHabits } from '@/hooks/useHabits';
@@ -77,12 +76,12 @@ export const MonthNavigation = ({
   };
   return <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
       <div className="flex items-center space-x-2">
-        <Button variant="ghost" size="sm" onClick={() => navigateMonth('prev')} className="text-gray-300 dark:text-gray-700 hover:text-white dark:hover:text-black transition-all duration-200 bg-stone-950 dark:bg-gray-100 hover:bg-stone-800 dark:hover:bg-gray-200">
+        <Button variant="ghost" size="sm" onClick={() => navigateMonth('prev')} className="text-gray-300 dark:text-gray-700 hover:text-white dark:hover:text-black transition-all duration-200 bg-slate-50">
           <ChevronLeft className="h-4 w-4" />
         </Button>
         
         <div className="text-center min-w-[180px]">
-          <h2 className="text-xl font-semibold text-stone-950 dark:text-black">
+          <h2 className="text-xl font-semibold text-slate-50">
             {months[currentDate.getMonth()]} {currentDate.getFullYear()}
           </h2>
         </div>
