@@ -81,7 +81,7 @@ export const MonthNavigation = ({
         </Button>
         
         <div className="text-center min-w-[180px]">
-          <h2 className="text-xl font-semibold text-slate-50">
+          <h2 className="text-xl font-semibold text-gray-950">
             {months[currentDate.getMonth()]} {currentDate.getFullYear()}
           </h2>
         </div>
