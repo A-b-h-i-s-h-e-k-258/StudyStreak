@@ -157,7 +157,7 @@ export const MonthlyActivityGrid = ({ currentDate, onDateChange }: MonthlyActivi
                 className="w-4 h-4 flex items-center justify-center text-xs text-gray-500 dark:text-gray-600"
                 title={`Day ${day}`}
               >
-                {day % 5 === 0 ? day : ''}
+                {day}
               </div>
             ))}
           </div>
