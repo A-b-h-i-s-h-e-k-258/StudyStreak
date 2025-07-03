@@ -154,7 +154,7 @@ export const MonthlyActivityGrid = ({ currentDate, onDateChange }: MonthlyActivi
             {days.map((day) => (
               <div
                 key={day}
-                className="w-4 h-4 flex items-center justify-center text-xs text-gray-500 dark:text-gray-600"
+                className="w-4 h-4 flex items-center justify-center text-[10px] text-gray-500 dark:text-gray-600 font-mono"
                 title={`Day ${day}`}
               >
                 {day}
