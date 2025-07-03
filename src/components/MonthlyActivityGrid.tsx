@@ -144,17 +144,17 @@ export const MonthlyActivityGrid = ({ currentDate, onDateChange }: MonthlyActivi
       </div>
 
       {/* Activity Grid */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         {/* Days header */}
         <div className="flex items-center">
-          <div className="w-32 text-sm font-medium text-gray-400 dark:text-gray-600">
+          <div className="w-40 text-sm font-medium text-gray-400 dark:text-gray-600">
             Habits
           </div>
           <div className="flex gap-1 ml-4">
             {days.map((day) => (
               <div
                 key={day}
-                className="w-3 h-3 flex items-center justify-center text-xs text-gray-500 dark:text-gray-600"
+                className="w-4 h-4 flex items-center justify-center text-xs text-gray-500 dark:text-gray-600"
                 title={`Day ${day}`}
               >
                 {day % 5 === 0 ? day : ''}
@@ -168,7 +168,7 @@ export const MonthlyActivityGrid = ({ currentDate, onDateChange }: MonthlyActivi
           const habitCompletions = getHabitStats(habit.id);
           return (
             <div key={habit.id} className="flex items-center">
-              <div className="w-32 text-sm text-gray-300 dark:text-gray-800 truncate pr-2">
+              <div className="w-40 text-sm text-gray-300 dark:text-gray-800 truncate pr-3">
                 {habit.name}
               </div>
               <div className="flex gap-1 ml-4">
@@ -177,17 +177,17 @@ export const MonthlyActivityGrid = ({ currentDate, onDateChange }: MonthlyActivi
                   return (
                     <div
                       key={day}
-                      className={`w-3 h-3 rounded-sm ${
+                      className={`w-4 h-4 ${
                         isCompleted
-                          ? 'bg-emerald-500 dark:bg-emerald-600'
-                          : 'bg-gray-700 dark:bg-gray-200'
+                          ? 'bg-green-600 dark:bg-green-500'
+                          : 'bg-gray-800 dark:bg-gray-300 border border-gray-700 dark:border-gray-400'
                       }`}
                       title={`${habit.name} - Day ${day} (${isCompleted ? 'Completed' : 'Not completed'})`}
                     />
                   );
                 })}
               </div>
-              <div className="ml-4 text-sm text-gray-400 dark:text-gray-600">
+              <div className="ml-4 text-sm text-gray-400 dark:text-gray-600 min-w-[60px]">
                 {habitCompletions} days
               </div>
             </div>
