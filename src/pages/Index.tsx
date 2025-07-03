@@ -11,6 +11,7 @@ import { MonthNavigation } from '@/components/MonthNavigation';
 import { UserMenu } from '@/components/UserMenu';
 import { AddTaskDialog } from '@/components/AddTaskDialog';
 import { Footer } from '@/components/Footer';
+import { TrophySection } from '@/components/TrophySection';
 import { useAuth } from '@/hooks/useAuth';
 import { useHabits } from '@/hooks/useHabits';
 import { useTasks } from '@/hooks/useTasks';
@@ -116,6 +117,9 @@ const Index = () => {
         <div className="mt-8 space-y-8">
           {/* Monthly Activity Grid - New CodeForces-style view */}
           <MonthlyActivityGrid currentDate={currentDate} onDateChange={setCurrentDate} />
+
+          {/* Trophy Section - New Achievement System */}
+          <TrophySection />
 
           {/* Task Progress - Full Width with enhanced styling */}
           <div className="backdrop-blur-xl bg-white/5 dark:bg-white/80 rounded-2xl border border-white/10 dark:border-gray-200 p-6 shadow-lg">
