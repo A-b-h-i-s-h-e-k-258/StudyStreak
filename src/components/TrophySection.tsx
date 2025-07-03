@@ -18,32 +18,60 @@ export const TrophySection = () => {
   const { habits, completions } = useHabits();
   const { tasks } = useTasks();
 
-  // Calculate current streak (consecutive days with at least one habit completed)
-  const getCurrentStreak = () => {
-    const today = new Date();
-    let currentStreak = 0;
-    let checkDate = new Date(today);
+  // Check for 7 consecutive days of all habits completed
+  const getOneWeekWonder = () => {
+    if (habits.length === 0) return false;
     
-    while (checkDate) {
+    const today = new Date();
+    let consecutiveDays = 0;
+    
+    for (let i = 0; i < 7; i++) {
+      const checkDate = new Date(today);
+      checkDate.setDate(today.getDate() - i);
       const dateStr = checkDate.toISOString().split('T')[0];
-      const hasCompletionOnDate = completions.some(c => c.completion_date === dateStr);
       
-      if (hasCompletionOnDate) {
-        currentStreak++;
-        checkDate.setDate(checkDate.getDate() - 1);
+      // Check if ALL habits have completions on this date
+      const allHabitsCompleted = habits.every(habit => 
+        completions.some(c => c.habit_id === habit.id && c.completion_date === dateStr)
+      );
+      
+      if (allHabitsCompleted) {
+        consecutiveDays++;
       } else {
         break;
       }
-      
-      // Prevent infinite loop
-      if (currentStreak > 365) break;
     }
     
-    return currentStreak;
+    return consecutiveDays >= 7;
+  };
+
+  // Check for perfect month (no missed days in current month)
+  const getPerfectMonth = () => {
+    if (habits.length === 0) return false;
+    
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    
+    // Check each day of the month
+    for (let date = new Date(startOfMonth); date <= endOfMonth; date.setDate(date.getDate() + 1)) {
+      const dateStr = date.toISOString().split('T')[0];
+      
+      // Check if ALL habits have completions on this date
+      const allHabitsCompleted = habits.every(habit => 
+        completions.some(c => c.habit_id === habit.id && c.completion_date === dateStr)
+      );
+      
+      if (!allHabitsCompleted) {
+        return false;
+      }
+    }
+    
+    return true;
   };
 
   // Check if all tasks are completed this week
-  const getAllTasksCompletedThisWeek = () => {
+  const getWeeklyChampion = () => {
     const today = new Date();
     const startOfWeek = new Date(today);
     startOfWeek.setDate(today.getDate() - today.getDay());
@@ -58,71 +86,34 @@ export const TrophySection = () => {
     return weekTasks.length > 0 && completedWeekTasks.length === weekTasks.length;
   };
 
-  // Calculate total completions this month
-  const getMonthlyCompletions = () => {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    
-    return completions.filter(c => {
-      const completionDate = new Date(c.completion_date);
-      return completionDate >= startOfMonth && completionDate <= endOfMonth;
-    }).length;
-  };
-
-  const currentStreak = getCurrentStreak();
-  const allTasksCompletedThisWeek = getAllTasksCompletedThisWeek();
-  const monthlyCompletions = getMonthlyCompletions();
-  const totalHabits = habits.length;
+  const oneWeekWonder = getOneWeekWonder();
+  const perfectMonth = getPerfectMonth();
+  const weeklyChampion = getWeeklyChampion();
 
   const achievements: Achievement[] = [
     {
-      id: 'streak-3',
-      name: '3-Day Streak',
-      description: 'Complete habits for 3 consecutive days',
+      id: 'one-week-wonder',
+      name: 'One-Week Wonder',
+      description: '7 consecutive days of all habits',
       icon: Star,
-      earned: currentStreak >= 3,
+      earned: oneWeekWonder,
       type: 'streak'
     },
     {
-      id: 'streak-5',
-      name: '5-Day Streak',
-      description: 'Complete habits for 5 consecutive days',
-      icon: Zap,
-      earned: currentStreak >= 5,
-      type: 'streak'
-    },
-    {
-      id: 'streak-10',
-      name: '10-Day Streak',
-      description: 'Complete habits for 10 consecutive days',
+      id: 'perfect-month',
+      name: 'Perfect Month',
+      description: 'No missed days in a full month',
       icon: Trophy,
-      earned: currentStreak >= 10,
-      type: 'streak'
-    },
-    {
-      id: 'weekly-completion',
-      name: 'Weekly Champion',
-      description: 'Complete all tasks this week',
-      icon: Target,
-      earned: allTasksCompletedThisWeek,
-      type: 'completion'
-    },
-    {
-      id: 'habit-creator',
-      name: 'Habit Builder',
-      description: 'Create your first 3 habits',
-      icon: Calendar,
-      earned: totalHabits >= 3,
-      type: 'milestone'
-    },
-    {
-      id: 'monthly-warrior',
-      name: 'Monthly Warrior',
-      description: 'Complete 50+ habit sessions this month',
-      icon: Award,
-      earned: monthlyCompletions >= 50,
+      earned: perfectMonth,
       type: 'consistency'
+    },
+    {
+      id: 'weekly-champion',
+      name: 'Weekly Champion',
+      description: 'Complete 100% tasks in a week',
+      icon: Target,
+      earned: weeklyChampion,
+      type: 'completion'
     }
   ];
 
@@ -152,26 +143,6 @@ export const TrophySection = () => {
       </CardHeader>
       
       <CardContent className="space-y-4">
-        {/* Current Stats */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="text-center p-3 rounded-lg bg-white/5 dark:bg-white/60 border border-white/10 dark:border-gray-200">
-            <div className="text-2xl font-bold text-emerald-400 dark:text-emerald-600">
-              {currentStreak}
-            </div>
-            <div className="text-xs text-gray-400 dark:text-gray-600">
-              Current Streak
-            </div>
-          </div>
-          <div className="text-center p-3 rounded-lg bg-white/5 dark:bg-white/60 border border-white/10 dark:border-gray-200">
-            <div className="text-2xl font-bold text-blue-400 dark:text-blue-600">
-              {monthlyCompletions}
-            </div>
-            <div className="text-xs text-gray-400 dark:text-gray-600">
-              This Month
-            </div>
-          </div>
-        </div>
-
         {/* Achievements Grid */}
         <div className="space-y-3">
           {achievements.map((achievement) => {
