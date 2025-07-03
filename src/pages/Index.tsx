@@ -14,6 +14,8 @@ import { Footer } from '@/components/Footer';
 import { useAuth } from '@/hooks/useAuth';
 import { useHabits } from '@/hooks/useHabits';
 import { useTasks } from '@/hooks/useTasks';
+import { MonthlyActivityGrid } from '@/components/MonthlyActivityGrid';
+
 const Index = () => {
   const {
     user,
@@ -112,6 +114,9 @@ const Index = () => {
 
         {/* Main Content */}
         <div className="mt-8 space-y-8">
+          {/* Monthly Activity Grid - New CodeForces-style view */}
+          <MonthlyActivityGrid currentDate={currentDate} onDateChange={setCurrentDate} />
+
           {/* Task Progress - Full Width with enhanced styling */}
           <div className="backdrop-blur-xl bg-white/5 dark:bg-white/80 rounded-2xl border border-white/10 dark:border-gray-200 p-6 shadow-lg">
             <h3 className="text-xl font-bold mb-6 text-white dark:text-black">
@@ -162,4 +167,5 @@ const Index = () => {
       <Footer />
     </div>;
 };
+
 export default Index;
