@@ -25,6 +25,8 @@ export const ThemeToggle = () => {
     let interval: NodeJS.Timeout;
     
     if (isAutoMode) {
+      // Apply immediately when auto mode is enabled
+      applyAutoTheme();
       // Check every minute for time changes
       interval = setInterval(applyAutoTheme, 60000);
     }
@@ -36,8 +38,12 @@ export const ThemeToggle = () => {
 
   const applyAutoTheme = () => {
     const currentHour = new Date().getHours();
-    const shouldBeDark = currentHour >= 19 || currentHour < 7; // 7 PM to 7 AM
+    console.log('Current hour:', currentHour); // Debug log
     
+    // Dark mode from 6 PM (18:00) to 6 AM (06:00)
+    const shouldBeDark = currentHour >= 18 || currentHour < 6;
+    
+    console.log('Should be dark:', shouldBeDark); // Debug log
     setTheme(shouldBeDark ? 'dark' : 'light');
   };
 
@@ -88,7 +94,7 @@ export const ThemeToggle = () => {
             ? 'bg-emerald-500/20 text-emerald-400 dark:text-emerald-600 hover:bg-emerald-500/30' 
             : 'bg-white/10 dark:bg-gray-100 text-white dark:text-gray-700 hover:bg-white/20 dark:hover:bg-gray-200'
         }`}
-        title={isAutoMode ? 'Auto mode enabled' : 'Enable auto mode'}
+        title={isAutoMode ? 'Auto mode enabled (6PM-6AM = Dark)' : 'Enable auto mode'}
       >
         <Clock className="h-4 w-4" />
       </Button>
