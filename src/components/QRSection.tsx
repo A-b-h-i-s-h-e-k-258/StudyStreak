@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, forwardRef } from 'react';
 import { QrCode, Share2, Download, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useTasks } from '@/hooks/useTasks';
 import { useHabits } from '@/hooks/useHabits';
 
-export const QRSection = () => {
+export const QRSection = forwardRef<HTMLDivElement>((_, ref) => {
   const [selectedType, setSelectedType] = useState<'task' | 'habit' | 'custom'>('task');
   const [selectedId, setSelectedId] = useState('');
   const [customText, setCustomText] = useState('');
@@ -85,7 +84,7 @@ export const QRSection = () => {
   };
 
   return (
-    <Card className="backdrop-blur-xl bg-white/5 dark:bg-white/80 border border-white/10 dark:border-gray-200">
+    <Card ref={ref} className="backdrop-blur-xl bg-white/5 dark:bg-white/80 border border-white/10 dark:border-gray-200">
       <CardHeader>
         <div className="flex items-center space-x-2">
           <QrCode className="h-6 w-6 text-emerald-400 dark:text-emerald-600" />
@@ -203,4 +202,6 @@ export const QRSection = () => {
       </CardContent>
     </Card>
   );
-};
+});
+
+QRSection.displayName = 'QRSection';

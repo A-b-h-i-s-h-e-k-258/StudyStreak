@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, TrendingUp, Target } from 'lucide-react';
+import { Plus, TrendingUp, Target, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { HabitGrid } from '@/components/HabitGrid';
 import { TodoSection } from '@/components/TodoSection';
@@ -25,6 +25,7 @@ const Index = () => {
   } = useAuth();
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
+  const qrSectionRef = useRef<HTMLDivElement>(null);
   const {
     habits,
     completions,
@@ -34,6 +35,14 @@ const Index = () => {
     tasks,
     isLoading: tasksLoading
   } = useTasks();
+
+  const scrollToQRSection = () => {
+    qrSectionRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    });
+  };
+
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth');
@@ -91,6 +100,7 @@ const Index = () => {
         </svg>
       </div>;
   };
+
   return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-gray-50 dark:via-gray-100 dark:to-gray-50 text-white dark:text-black transition-colors duration-300">
       {/* Glass Navigation */}
       <nav className="sticky top-0 z-50 backdrop-blur-xl bg-white/5 dark:bg-white/80 border-b border-white/10 dark:border-gray-200">
@@ -103,6 +113,15 @@ const Index = () => {
               </h1>
             </div>
             <div className="flex items-center space-x-4">
+              <Button
+                onClick={scrollToQRSection}
+                variant="ghost"
+                size="sm"
+                className="text-gray-300 dark:text-gray-700 hover:text-emerald-400 dark:hover:text-emerald-600"
+              >
+                <Share2 className="h-4 w-4 mr-2" />
+                Share
+              </Button>
               <ThemeToggle />
               <UserMenu />
             </div>
@@ -118,9 +137,6 @@ const Index = () => {
         <div className="mt-8 space-y-8">
           {/* Monthly Activity Grid - New CodeForces-style view */}
           <MonthlyActivityGrid currentDate={currentDate} onDateChange={setCurrentDate} />
-
-          {/* QR Code Section - New sharing feature */}
-          <QRSection />
 
           {/* Trophy Section - New Achievement System */}
           <TrophySection />
@@ -168,6 +184,9 @@ const Index = () => {
             </div>
             <TaskBreakdownSection habits={habitsWithSelectedMonthProgress} currentDate={currentDate} />
           </div>
+
+          {/* QR Code Section - Moved to bottom */}
+          <QRSection ref={qrSectionRef} />
         </div>
       </div>
 
