@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -79,7 +80,35 @@ const Auth = () => {
     }
   };
 
+  const handleGoogleAuth = async () => {
+    setLoading(true);
+    try {
+      const redirectUrl = `${window.location.origin}/`;
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl,
+        },
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      console.error('Google auth error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to sign in with Google",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSocialAuth = async (provider: 'github' | 'google') => {
+    if (provider === 'google') {
+      await handleGoogleAuth();
+      return;
+    }
+    
     setLoading(true);
     try {
       const redirectUrl = `${window.location.origin}/`;
@@ -206,10 +235,10 @@ const Auth = () => {
               </div>
             </div>
             
-            <div className="mt-4">
+            <div className="mt-4 space-y-3">
               <Button
                 variant="outline"
-                onClick={() => handleSocialAuth('google')}
+                onClick={handleGoogleAuth}
                 disabled={loading}
                 className="w-full bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700"
               >
