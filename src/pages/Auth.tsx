@@ -17,6 +17,15 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
 
+  // Check if we're in an iframe
+  const isInIframe = () => {
+    try {
+      return window.self !== window.top;
+    } catch (e) {
+      return true;
+    }
+  };
+
   useEffect(() => {
     console.log('Auth page loaded, checking existing session...');
     
@@ -34,7 +43,8 @@ const Auth = () => {
   const handleEmailAuth = async (type: 'signin' | 'signup') => {
     setLoading(true);
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = isInIframe() ? window.top?.location.origin || window.location.origin : window.location.origin;
+      
       if (type === 'signup') {
         const { error } = await supabase.auth.signUp({
           email,
@@ -78,31 +88,81 @@ const Auth = () => {
   const handleGoogleAuth = async () => {
     console.log('Starting Google OAuth flow...');
     setLoading(true);
+    
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const inIframe = isInIframe();
+      console.log('Is in iframe:', inIframe);
+      
+      // Use the top-level window origin for iframe contexts
+      const redirectUrl = inIframe ? 
+        (window.top?.location.origin || window.location.origin) : 
+        window.location.origin;
+      
       console.log('Redirect URL:', redirectUrl);
       
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: redirectUrl,
-        },
-      });
-      
-      if (error) {
-        console.error('Google OAuth error:', error);
-        throw error;
+      if (inIframe) {
+        // For iframe contexts, use a full page redirect to break out of the iframe
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: redirectUrl,
+            // Force full page redirect to bypass iframe restrictions
+            queryParams: {
+              access_type: 'offline',
+              prompt: 'consent',
+            },
+          },
+        });
+        
+        if (error) {
+          console.error('Google OAuth error:', error);
+          toast({
+            title: "Authentication Error",
+            description: "Please try opening this page in a new tab for Google sign-in.",
+            variant: "destructive",
+          });
+          
+          // Fallback: Open auth in new window
+          const newWindow = window.open(
+            `${window.location.origin}/auth`,
+            'auth',
+            'width=500,height=600,scrollbars=yes,resizable=yes'
+          );
+          
+          if (newWindow) {
+            // Monitor the new window for completion
+            const checkClosed = setInterval(() => {
+              if (newWindow.closed) {
+                clearInterval(checkClosed);
+                // Check if auth succeeded
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
+              }
+            }, 1000);
+          }
+          
+          throw error;
+        }
+      } else {
+        // Standard OAuth flow for non-iframe contexts
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: redirectUrl,
+          },
+        });
+        
+        if (error) {
+          console.error('Google OAuth error:', error);
+          throw error;
+        }
       }
       
       console.log('Google OAuth initiated successfully');
       // Don't set loading to false here - the page will redirect
     } catch (error: any) {
       console.error('Google auth error:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to sign in with Google",
-        variant: "destructive",
-      });
       setLoading(false);
     }
   };
@@ -115,7 +175,11 @@ const Auth = () => {
     
     setLoading(true);
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const inIframe = isInIframe();
+      const redirectUrl = inIframe ? 
+        (window.top?.location.origin || window.location.origin) : 
+        window.location.origin;
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
@@ -145,6 +209,11 @@ const Auth = () => {
           <CardDescription className="text-gray-400">
             Track your habits and achieve your goals
           </CardDescription>
+          {isInIframe() && (
+            <div className="mt-2 text-xs text-yellow-400 bg-yellow-900/20 rounded p-2">
+              Running in preview mode. For best Google sign-in experience, open in a new tab.
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
