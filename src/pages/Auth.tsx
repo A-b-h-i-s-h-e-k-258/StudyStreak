@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -19,13 +18,12 @@ const Auth = () => {
   const [fullName, setFullName] = useState('');
 
   useEffect(() => {
+    console.log('Auth page loaded, checking existing session...');
+    
     // Check if user is already logged in
     const checkAuth = async () => {
-      const {
-        data: {
-          session
-        }
-      } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Existing session found:', !!session?.user);
       if (session) {
         navigate('/');
       }
@@ -38,9 +36,7 @@ const Auth = () => {
     try {
       const redirectUrl = `${window.location.origin}/`;
       if (type === 'signup') {
-        const {
-          error
-        } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -56,9 +52,7 @@ const Auth = () => {
           description: "We've sent you a confirmation link to complete your signup."
         });
       } else {
-        const {
-          error
-        } = await supabase.auth.signInWithPassword({
+        const { error } = await supabase.auth.signInWithPassword({
           email,
           password
         });
@@ -70,6 +64,7 @@ const Auth = () => {
         navigate('/');
       }
     } catch (error: any) {
+      console.error('Email auth error:', error);
       toast({
         title: "Error",
         description: error.message,
@@ -81,16 +76,26 @@ const Auth = () => {
   };
 
   const handleGoogleAuth = async () => {
+    console.log('Starting Google OAuth flow...');
     setLoading(true);
     try {
       const redirectUrl = `${window.location.origin}/`;
+      console.log('Redirect URL:', redirectUrl);
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: redirectUrl,
         },
       });
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Google OAuth error:', error);
+        throw error;
+      }
+      
+      console.log('Google OAuth initiated successfully');
+      // Don't set loading to false here - the page will redirect
     } catch (error: any) {
       console.error('Google auth error:', error);
       toast({
@@ -98,7 +103,6 @@ const Auth = () => {
         description: error.message || "Failed to sign in with Google",
         variant: "destructive",
       });
-    } finally {
       setLoading(false);
     }
   };
@@ -260,7 +264,7 @@ const Auth = () => {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                Continue with Google
+                {loading ? 'Signing in...' : 'Continue with Google'}
               </Button>
             </div>
           </div>
