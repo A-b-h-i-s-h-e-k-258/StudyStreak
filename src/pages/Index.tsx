@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, TrendingUp, Target, Share2 } from 'lucide-react';
@@ -13,6 +14,7 @@ import { AddTaskDialog } from '@/components/AddTaskDialog';
 import { Footer } from '@/components/Footer';
 import { TrophySection } from '@/components/TrophySection';
 import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
 import { useHabits } from '@/hooks/useHabits';
 import { useTasks } from '@/hooks/useTasks';
 import { MonthlyActivityGrid } from '@/components/MonthlyActivityGrid';
@@ -20,6 +22,7 @@ import { QRSection } from '@/components/QRSection';
 
 const Index = () => {
   const { user, loading } = useAuth();
+  const { profile } = useProfile();
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
   const qrSectionRef = useRef<HTMLDivElement>(null);
@@ -106,6 +109,9 @@ const Index = () => {
 
   const habitsWithSelectedMonthProgress = getHabitsWithSelectedMonthProgress();
 
+  // Get display name from profile or user metadata
+  const displayName = profile?.full_name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+
   const MiniPieChart = ({ percentage }: { percentage: number; }) => {
     const radius = 12;
     const circumference = 2 * Math.PI * radius;
@@ -151,6 +157,16 @@ const Index = () => {
       </nav>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Message */}
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-white dark:text-black mb-2">
+            Welcome back, {displayName}! 👋
+          </h2>
+          <p className="text-gray-300 dark:text-gray-600">
+            Ready to continue your learning streak?
+          </p>
+        </div>
+
         {/* Stats Cards */}
         <StatsCards />
 
