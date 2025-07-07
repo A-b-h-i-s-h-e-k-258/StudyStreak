@@ -195,7 +195,7 @@ const Auth = () => {
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <img 
-              src="/lovable-uploads/fc7ee8ee-e47f-478e-a0e2-a82de6f3e8e9.png" 
+              src="/lovable-uploads/1557131f-39d9-46c7-86a4-dd4813ba9510.png" 
               alt="StudyStreak Logo" 
               className="h-12 w-12"
             />
