@@ -134,7 +134,11 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <Target className="h-8 w-8 text-emerald-400 dark:text-emerald-600" />
+              <img 
+                src="/lovable-uploads/fc7ee8ee-e47f-478e-a0e2-a82de6f3e8e9.png" 
+                alt="StudyStreak Logo" 
+                className="h-8 w-8"
+              />
               <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 dark:from-emerald-600 dark:to-blue-600 bg-clip-text text-transparent">
                 StudyStreak
               </h1>

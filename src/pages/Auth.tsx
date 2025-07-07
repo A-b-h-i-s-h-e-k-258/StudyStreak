@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Target, Github, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+
 const Auth = () => {
   const navigate = useNavigate();
   const {
@@ -193,7 +194,11 @@ const Auth = () => {
       <Card className="w-full max-w-md bg-gray-900/95 border-gray-700">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <Target className="h-12 w-12 text-emerald-400" />
+            <img 
+              src="/lovable-uploads/fc7ee8ee-e47f-478e-a0e2-a82de6f3e8e9.png" 
+              alt="StudyStreak Logo" 
+              className="h-12 w-12"
+            />
           </div>
           <CardTitle className="text-2xl font-bold text-slate-50">Welcome to StudyStreak</CardTitle>
           <CardDescription className="text-gray-400">
@@ -269,4 +274,5 @@ const Auth = () => {
       </Card>
     </div>;
 };
+
 export default Auth;
