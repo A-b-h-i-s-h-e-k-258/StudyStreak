@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { 
   LayoutDashboard, 
   Target, 
-  ListTodo, 
   TrendingUp, 
   Trophy, 
   Plus,
@@ -25,14 +24,12 @@ interface NavigationItem {
 interface EnhancedNavigationProps {
   onScrollToSection: (sectionId: string) => void;
   onAddHabit: () => void;
-  onAddTask: () => void;
   onShare: () => void;
 }
 
 export const EnhancedNavigation = ({ 
   onScrollToSection, 
   onAddHabit, 
-  onAddTask, 
   onShare 
 }: EnhancedNavigationProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -51,10 +48,10 @@ export const EnhancedNavigation = ({
       onClick: () => onScrollToSection('habits')
     },
     {
-      id: 'tasks',
-      label: 'Tasks',
-      icon: ListTodo,
-      onClick: () => onScrollToSection('tasks')
+      id: 'habit-breakdown',
+      label: 'Habit Breakdown',
+      icon: Target,
+      onClick: () => onScrollToSection('habit-breakdown')
     },
     {
       id: 'analytics',
@@ -124,16 +121,6 @@ export const EnhancedNavigation = ({
                 <Plus className="h-4 w-4 mr-1" />
                 Add Habit
               </Button>
-              
-              <Button
-                onClick={onAddTask}
-                variant="outline"
-                size="sm"
-                className="border-emerald-500/30 text-emerald-400 dark:text-emerald-600 hover:bg-emerald-500/10 transition-all duration-200"
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Add Task
-              </Button>
 
               <Button
                 onClick={onShare}
@@ -187,15 +174,6 @@ export const EnhancedNavigation = ({
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Habit
-                </Button>
-                
-                <Button
-                  onClick={() => { onAddTask(); setIsMobileMenuOpen(false); }}
-                  variant="outline"
-                  className="w-full border-emerald-500/30 text-emerald-400 dark:text-emerald-600 py-3"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Task
                 </Button>
               </div>
             </div>

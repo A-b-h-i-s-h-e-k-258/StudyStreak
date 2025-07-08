@@ -4,18 +4,16 @@ import { useNavigate } from 'react-router-dom';
 import { EnhancedNavigation } from '@/components/EnhancedNavigation';
 import { DashboardSection } from '@/components/sections/DashboardSection';
 import { HabitsSection } from '@/components/sections/HabitsSection';
-import { TasksSection } from '@/components/sections/TasksSection';
+import { HabitBreakdownSection } from '@/components/sections/HabitBreakdownSection';
 import { AnalyticsSection } from '@/components/sections/AnalyticsSection';
 import { AchievementsSection } from '@/components/sections/AchievementsSection';
 import { MonthlyActivityGrid } from '@/components/MonthlyActivityGrid';
 import { QRSection } from '@/components/QRSection';
 import { Footer } from '@/components/Footer';
 import { AddHabitDialog } from '@/components/AddHabitDialog';
-import { AddTaskDialog } from '@/components/AddTaskDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useHabits } from '@/hooks/useHabits';
-import { useTasks } from '@/hooks/useTasks';
 import { useScrollNavigation } from '@/hooks/useScrollNavigation';
 
 const Index = () => {
@@ -25,7 +23,6 @@ const Index = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const qrSectionRef = useRef<HTMLDivElement>(null);
   const { habits, completions, isLoading: habitsLoading } = useHabits();
-  const { tasks, isLoading: tasksLoading } = useTasks();
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const { scrollToSection } = useScrollNavigation();
 
@@ -60,7 +57,7 @@ const Index = () => {
     );
   }
 
-  if (habitsLoading || tasksLoading) {
+  if (habitsLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-gray-50 dark:via-gray-100 dark:to-gray-50 flex items-center justify-center">
         <div className="text-white dark:text-black">Loading...</div>
@@ -97,7 +94,6 @@ const Index = () => {
       <EnhancedNavigation
         onScrollToSection={scrollToSection}
         onAddHabit={() => {}} // Will be handled by the dialog's internal trigger
-        onAddTask={() => {}} // Will be handled by the dialog's internal trigger
         onShare={scrollToQRSection}
       />
 
@@ -127,8 +123,8 @@ const Index = () => {
             onDateChange={setCurrentDate}
           />
 
-          {/* Tasks Section */}
-          <TasksSection 
+          {/* Habit Breakdown Section */}
+          <HabitBreakdownSection 
             habits={habitsWithSelectedMonthProgress}
             currentDate={currentDate}
           />
@@ -140,7 +136,6 @@ const Index = () => {
 
       {/* Dialogs */}
       <AddHabitDialog />
-      <AddTaskDialog />
 
       {/* Footer */}
       <Footer />

@@ -1,3 +1,4 @@
+
 import { useState, forwardRef } from 'react';
 import { QrCode, Share2, Download, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,28 +7,20 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { useTasks } from '@/hooks/useTasks';
 import { useHabits } from '@/hooks/useHabits';
 
 export const QRSection = forwardRef<HTMLDivElement>((_, ref) => {
-  const [selectedType, setSelectedType] = useState<'task' | 'habit' | 'custom'>('task');
+  const [selectedType, setSelectedType] = useState<'habit' | 'custom'>('habit');
   const [selectedId, setSelectedId] = useState('');
   const [customText, setCustomText] = useState('');
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const { toast } = useToast();
-  const { tasks } = useTasks();
   const { habits } = useHabits();
 
   const generateQRCode = () => {
     let textToEncode = '';
     
     switch (selectedType) {
-      case 'task':
-        const selectedTask = tasks.find(t => t.id === selectedId);
-        if (selectedTask) {
-          textToEncode = `Task: ${selectedTask.title}\nDescription: ${selectedTask.description || 'No description'}\nDue: ${selectedTask.due_date || 'No due date'}`;
-        }
-        break;
       case 'habit':
         const selectedHabit = habits.find(h => h.id === selectedId);
         if (selectedHabit) {
@@ -91,42 +84,23 @@ export const QRSection = forwardRef<HTMLDivElement>((_, ref) => {
           <CardTitle className="text-white dark:text-black">QR Code Generator</CardTitle>
         </div>
         <CardDescription className="text-gray-400 dark:text-gray-600">
-          Generate QR codes for easy sharing of tasks, habits, or custom content
+          Generate QR codes for easy sharing of habits or custom content
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-4">
           <div className="space-y-2">
             <Label className="text-gray-300 dark:text-gray-700">Content Type</Label>
-            <Select value={selectedType} onValueChange={(value: 'task' | 'habit' | 'custom') => setSelectedType(value)}>
+            <Select value={selectedType} onValueChange={(value: 'habit' | 'custom') => setSelectedType(value)}>
               <SelectTrigger className="bg-gray-800 dark:bg-white border-gray-600 dark:border-gray-300 text-white dark:text-black">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-gray-800 dark:bg-white border-gray-600 dark:border-gray-300">
-                <SelectItem value="task" className="text-white dark:text-black">Task</SelectItem>
                 <SelectItem value="habit" className="text-white dark:text-black">Habit</SelectItem>
                 <SelectItem value="custom" className="text-white dark:text-black">Custom Text</SelectItem>
               </SelectContent>
             </Select>
           </div>
-
-          {selectedType === 'task' && (
-            <div className="space-y-2">
-              <Label className="text-gray-300 dark:text-gray-700">Select Task</Label>
-              <Select value={selectedId} onValueChange={setSelectedId}>
-                <SelectTrigger className="bg-gray-800 dark:bg-white border-gray-600 dark:border-gray-300 text-white dark:text-black">
-                  <SelectValue placeholder="Choose a task" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-800 dark:bg-white border-gray-600 dark:border-gray-300">
-                  {tasks.map((task) => (
-                    <SelectItem key={task.id} value={task.id} className="text-white dark:text-black">
-                      {task.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
 
           {selectedType === 'habit' && (
             <div className="space-y-2">
