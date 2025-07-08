@@ -26,8 +26,6 @@ const Index = () => {
   const { habits, completions, isLoading: habitsLoading } = useHabits();
   const { tasks, isLoading: tasksLoading } = useTasks();
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [isAddHabitDialogOpen, setIsAddHabitDialogOpen] = useState(false);
-  const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
   const { scrollToSection } = useScrollNavigation();
 
   const scrollToQRSection = () => {
@@ -97,8 +95,8 @@ const Index = () => {
       {/* Enhanced Navigation */}
       <EnhancedNavigation
         onScrollToSection={scrollToSection}
-        onAddHabit={() => setIsAddHabitDialogOpen(true)}
-        onAddTask={() => setIsAddTaskDialogOpen(true)}
+        onAddHabit={() => {}} // Will be handled by the dialog's internal trigger
+        onAddTask={() => {}} // Will be handled by the dialog's internal trigger
         onShare={scrollToQRSection}
       />
 
@@ -138,14 +136,8 @@ const Index = () => {
       </div>
 
       {/* Dialogs */}
-      <AddHabitDialog 
-        open={isAddHabitDialogOpen} 
-        onOpenChange={setIsAddHabitDialogOpen} 
-      />
-      <AddTaskDialog 
-        open={isAddTaskDialogOpen} 
-        onOpenChange={setIsAddTaskDialogOpen} 
-      />
+      <AddHabitDialog />
+      <AddTaskDialog />
 
       {/* Footer */}
       <Footer />
