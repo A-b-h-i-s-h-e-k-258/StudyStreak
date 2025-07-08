@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
@@ -43,7 +42,7 @@ export const EnhancedNavigation = ({
     },
     {
       id: 'habits',
-      label: 'Habits',
+      label: 'Monthly Habit Stats',
       icon: Target,
       onClick: () => onScrollToSection('habits')
     },
