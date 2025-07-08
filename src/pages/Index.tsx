@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, TrendingUp, Target, Share2 } from 'lucide-react';
@@ -45,8 +44,8 @@ const Index = () => {
       if (!loading) {
         setIsInitialLoad(false);
         if (!user) {
-          console.log('No user found, redirecting to auth');
-          navigate('/auth');
+          console.log('No user found, redirecting to landing');
+          navigate('/');
         }
       }
     }, 100); // Small delay to allow auth state to settle
@@ -174,7 +173,6 @@ const Index = () => {
         {/* Stats Cards */}
         <StatsCards />
 
-        {/* Main Content */}
         <div className="mt-8 space-y-8">
           {/* Monthly Activity Grid - New CodeForces-style view */}
           <MonthlyActivityGrid currentDate={currentDate} onDateChange={setCurrentDate} />
