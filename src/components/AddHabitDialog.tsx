@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -14,11 +14,21 @@ import { Label } from '@/components/ui/label';
 import { Plus } from 'lucide-react';
 import { useHabits } from '@/hooks/useHabits';
 
-export const AddHabitDialog = () => {
-  const [open, setOpen] = useState(false);
+interface AddHabitDialogProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  trigger?: React.ReactNode;
+}
+
+export const AddHabitDialog = ({ open, onOpenChange, trigger }: AddHabitDialogProps) => {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [name, setName] = useState('');
   const [goal, setGoal] = useState(30);
   const { createHabit, isCreating } = useHabits();
+
+  // Use external state if provided, otherwise use internal state
+  const isOpen = open !== undefined ? open : internalOpen;
+  const setIsOpen = onOpenChange || setInternalOpen;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,20 +36,24 @@ export const AddHabitDialog = () => {
       createHabit({ name: name.trim(), goal });
       setName('');
       setGoal(30);
-      setOpen(false);
+      setIsOpen(false);
     }
   };
 
+  const defaultTrigger = (
+    <Button 
+      className="backdrop-blur-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30"
+      size="sm"
+    >
+      <Plus className="h-4 w-4 mr-2" />
+      Add Habit
+    </Button>
+  );
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button 
-          className="backdrop-blur-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30"
-          size="sm"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add Habit
-        </Button>
+        {trigger || defaultTrigger}
       </DialogTrigger>
       <DialogContent className="bg-gray-900 border-gray-700">
         <DialogHeader>
@@ -77,7 +91,7 @@ export const AddHabitDialog = () => {
             <Button
               type="button"
               variant="outline"
-              onClick={() => setOpen(false)}
+              onClick={() => setIsOpen(false)}
               className="bg-gray-800 border-gray-600 text-gray-300"
             >
               Cancel

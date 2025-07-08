@@ -15,6 +15,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useHabits } from '@/hooks/useHabits';
 import { useScrollNavigation } from '@/hooks/useScrollNavigation';
+import { useAddHabitDialog } from '@/hooks/useAddHabitDialog';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -25,6 +26,7 @@ const Index = () => {
   const { habits, completions, isLoading: habitsLoading } = useHabits();
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const { scrollToSection } = useScrollNavigation();
+  const { isOpen: isAddHabitDialogOpen, openDialog: openAddHabitDialog, closeDialog: closeAddHabitDialog } = useAddHabitDialog();
 
   const scrollToQRSection = () => {
     qrSectionRef.current?.scrollIntoView({ 
@@ -93,7 +95,7 @@ const Index = () => {
       {/* Enhanced Navigation */}
       <EnhancedNavigation
         onScrollToSection={scrollToSection}
-        onAddHabit={() => {}} // Will be handled by the dialog's internal trigger
+        onAddHabit={openAddHabitDialog}
         onShare={scrollToQRSection}
       />
 
@@ -135,7 +137,10 @@ const Index = () => {
       </div>
 
       {/* Dialogs */}
-      <AddHabitDialog />
+      <AddHabitDialog 
+        open={isAddHabitDialogOpen}
+        onOpenChange={closeAddHabitDialog}
+      />
 
       {/* Footer */}
       <Footer />
