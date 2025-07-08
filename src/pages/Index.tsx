@@ -1,6 +1,6 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { DynamicBackground } from '@/components/DynamicBackground';
 import { EnhancedNavigation } from '@/components/EnhancedNavigation';
 import { DashboardSection } from '@/components/sections/DashboardSection';
 import { HabitsSection } from '@/components/sections/HabitsSection';
@@ -91,7 +91,10 @@ const Index = () => {
   const displayName = profile?.full_name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-gray-50 dark:via-gray-100 dark:to-gray-50 text-white dark:text-black transition-colors duration-300">
+    <div className="min-h-screen relative text-white dark:text-black transition-colors duration-300">
+      {/* Dynamic Background */}
+      <DynamicBackground />
+
       {/* Enhanced Navigation */}
       <EnhancedNavigation
         onScrollToSection={scrollToSection}
@@ -99,7 +102,7 @@ const Index = () => {
         onShare={scrollToQRSection}
       />
 
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
         <div className="space-y-6 sm:space-y-8">
           {/* Dashboard Section */}
           <DashboardSection displayName={displayName} />
