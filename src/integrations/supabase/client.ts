@@ -15,6 +15,19 @@ const isInIframe = () => {
   }
 };
 
+// Get the correct origin for iframe contexts
+const getOrigin = () => {
+  try {
+    if (isInIframe() && window.top) {
+      return window.top.location.origin;
+    }
+    return window.location.origin;
+  } catch (e) {
+    // Fallback for iframe restrictions
+    return window.location.origin;
+  }
+};
+
 // Configure client options for iframe support
 const clientOptions = {
   auth: {
@@ -26,7 +39,9 @@ const clientOptions = {
     // Use session storage in iframe contexts to avoid cookie issues
     storage: isInIframe() ? window.sessionStorage : window.localStorage,
     // Detect iframe and adjust flow type
-    flowType: isInIframe() ? 'implicit' as const : 'pkce' as const,
+    flowType: 'pkce' as const, // Always use PKCE for better iframe support
+    // Disable auto-refresh in iframe to prevent errors
+    autoRefreshToken: !isInIframe(),
   },
 };
 

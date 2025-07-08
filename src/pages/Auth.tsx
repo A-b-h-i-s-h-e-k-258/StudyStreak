@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -11,9 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const Auth = () => {
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,31 +26,45 @@ const Auth = () => {
       return true;
     }
   };
+
+  // Get safe redirect URL for iframe contexts
+  const getSafeRedirectUrl = () => {
+    try {
+      if (isInIframe()) {
+        // In iframe, use the current origin without trying to access parent
+        return window.location.origin;
+      }
+      return window.location.origin;
+    } catch (e) {
+      return window.location.origin;
+    }
+  };
+
   useEffect(() => {
     console.log('Auth page loaded, checking existing session...');
 
     // Check if user is already logged in
     const checkAuth = async () => {
-      const {
-        data: {
-          session
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log('Existing session found:', !!session?.user);
+        if (session) {
+          navigate('/');
         }
-      } = await supabase.auth.getSession();
-      console.log('Existing session found:', !!session?.user);
-      if (session) {
-        navigate('/');
+      } catch (error) {
+        console.error('Error checking auth session:', error);
       }
     };
     checkAuth();
   }, [navigate]);
+
   const handleEmailAuth = async (type: 'signin' | 'signup') => {
     setLoading(true);
     try {
-      const redirectUrl = isInIframe() ? window.top?.location.origin || window.location.origin : window.location.origin;
+      const redirectUrl = getSafeRedirectUrl();
+      
       if (type === 'signup') {
-        const {
-          error
-        } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -62,18 +75,18 @@ const Auth = () => {
           }
         });
         if (error) throw error;
+        
         toast({
           title: "Check your email",
           description: "We've sent you a confirmation link to complete your signup."
         });
       } else {
-        const {
-          error
-        } = await supabase.auth.signInWithPassword({
+        const { error } = await supabase.auth.signInWithPassword({
           email,
           password
         });
         if (error) throw error;
+        
         toast({
           title: "Welcome back!",
           description: "You've successfully signed in."
@@ -91,89 +104,68 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
   const handleGoogleAuth = async () => {
     console.log('Starting Google OAuth flow...');
     setLoading(true);
+    
     try {
       const inIframe = isInIframe();
       console.log('Is in iframe:', inIframe);
 
-      // Use the top-level window origin for iframe contexts
-      const redirectUrl = inIframe ? window.top?.location.origin || window.location.origin : window.location.origin;
-      console.log('Redirect URL:', redirectUrl);
       if (inIframe) {
-        // For iframe contexts, use a full page redirect to break out of the iframe
-        const {
-          error
-        } = await supabase.auth.signInWithOAuth({
-          provider: 'google',
-          options: {
-            redirectTo: redirectUrl,
-            // Force full page redirect to bypass iframe restrictions
-            queryParams: {
-              access_type: 'offline',
-              prompt: 'consent'
-            }
-          }
+        // In iframe, show warning and suggest opening in new tab
+        toast({
+          title: "Preview Mode Limitation",
+          description: "Google sign-in works best when opened in a new tab. Please try the email/password option instead.",
+          variant: "destructive"
         });
-        if (error) {
-          console.error('Google OAuth error:', error);
-          toast({
-            title: "Authentication Error",
-            description: "Please try opening this page in a new tab for Google sign-in.",
-            variant: "destructive"
-          });
-
-          // Fallback: Open auth in new window
-          const newWindow = window.open(`${window.location.origin}/auth`, 'auth', 'width=500,height=600,scrollbars=yes,resizable=yes');
-          if (newWindow) {
-            // Monitor the new window for completion
-            const checkClosed = setInterval(() => {
-              if (newWindow.closed) {
-                clearInterval(checkClosed);
-                // Check if auth succeeded
-                setTimeout(() => {
-                  window.location.reload();
-                }, 1000);
-              }
-            }, 1000);
-          }
-          throw error;
-        }
-      } else {
-        // Standard OAuth flow for non-iframe contexts
-        const {
-          error
-        } = await supabase.auth.signInWithOAuth({
-          provider: 'google',
-          options: {
-            redirectTo: redirectUrl
-          }
-        });
-        if (error) {
-          console.error('Google OAuth error:', error);
-          throw error;
-        }
+        setLoading(false);
+        return;
       }
+
+      const redirectUrl = getSafeRedirectUrl();
+      console.log('Redirect URL:', redirectUrl);
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent'
+          }
+        }
+      });
+
+      if (error) {
+        console.error('Google OAuth error:', error);
+        throw error;
+      }
+
       console.log('Google OAuth initiated successfully');
       // Don't set loading to false here - the page will redirect
     } catch (error: any) {
       console.error('Google auth error:', error);
+      toast({
+        title: "Authentication Error",
+        description: "Please try using email/password sign-in instead.",
+        variant: "destructive"
+      });
       setLoading(false);
     }
   };
+
   const handleSocialAuth = async (provider: 'github' | 'google') => {
     if (provider === 'google') {
       await handleGoogleAuth();
       return;
     }
+
     setLoading(true);
     try {
-      const inIframe = isInIframe();
-      const redirectUrl = inIframe ? window.top?.location.origin || window.location.origin : window.location.origin;
-      const {
-        error
-      } = await supabase.auth.signInWithOAuth({
+      const redirectUrl = getSafeRedirectUrl();
+      const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
           redirectTo: redirectUrl
@@ -190,7 +182,9 @@ const Auth = () => {
       setLoading(false);
     }
   };
-  return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-gray-900/95 border-gray-700">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
@@ -204,9 +198,11 @@ const Auth = () => {
           <CardDescription className="text-gray-400">
             Track your habits and achieve your goals
           </CardDescription>
-          {isInIframe() && <div className="mt-2 text-xs text-yellow-400 bg-yellow-900/20 rounded p-2">
-              Running in preview mode. For best Google sign-in experience, open in a new tab.
-            </div>}
+          {isInIframe() && (
+            <div className="mt-2 text-xs text-yellow-400 bg-yellow-900/20 rounded p-2">
+              Preview mode: For best experience with social sign-in, open in a new tab.
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
@@ -218,13 +214,31 @@ const Auth = () => {
             <TabsContent value="signin" className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="signin-email" className="text-gray-300">Email</Label>
-                <Input id="signin-email" type="email" value={email} onChange={e => setEmail(e.target.value)} className="bg-gray-800 border-gray-600 text-white" placeholder="Enter your email" />
+                <Input 
+                  id="signin-email" 
+                  type="email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  className="bg-gray-800 border-gray-600 text-white" 
+                  placeholder="Enter your email" 
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="signin-password" className="text-gray-300">Password</Label>
-                <Input id="signin-password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="bg-gray-800 border-gray-600 text-white" placeholder="Enter your password" />
+                <Input 
+                  id="signin-password" 
+                  type="password" 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  className="bg-gray-800 border-gray-600 text-white" 
+                  placeholder="Enter your password" 
+                />
               </div>
-              <Button onClick={() => handleEmailAuth('signin')} disabled={loading} className="w-full bg-emerald-600 hover:bg-emerald-700">
+              <Button 
+                onClick={() => handleEmailAuth('signin')} 
+                disabled={loading} 
+                className="w-full bg-emerald-600 hover:bg-emerald-700"
+              >
                 {loading ? 'Signing in...' : 'Sign In'}
               </Button>
             </TabsContent>
@@ -232,17 +246,42 @@ const Auth = () => {
             <TabsContent value="signup" className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="signup-name" className="text-gray-300">Full Name</Label>
-                <Input id="signup-name" type="text" value={fullName} onChange={e => setFullName(e.target.value)} className="bg-gray-800 border-gray-600 text-white" placeholder="Enter your full name" />
+                <Input 
+                  id="signup-name" 
+                  type="text" 
+                  value={fullName} 
+                  onChange={(e) => setFullName(e.target.value)} 
+                  className="bg-gray-800 border-gray-600 text-white" 
+                  placeholder="Enter your full name" 
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="signup-email" className="text-gray-300">Email</Label>
-                <Input id="signup-email" type="email" value={email} onChange={e => setEmail(e.target.value)} className="bg-gray-800 border-gray-600 text-white" placeholder="Enter your email" />
+                <Input 
+                  id="signup-email" 
+                  type="email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  className="bg-gray-800 border-gray-600 text-white" 
+                  placeholder="Enter your email" 
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="signup-password" className="text-gray-300">Password</Label>
-                <Input id="signup-password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="bg-gray-800 border-gray-600 text-white" placeholder="Create a password" />
+                <Input 
+                  id="signup-password" 
+                  type="password" 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  className="bg-gray-800 border-gray-600 text-white" 
+                  placeholder="Create a password" 
+                />
               </div>
-              <Button onClick={() => handleEmailAuth('signup')} disabled={loading} className="w-full bg-emerald-600 hover:bg-emerald-700">
+              <Button 
+                onClick={() => handleEmailAuth('signup')} 
+                disabled={loading} 
+                className="w-full bg-emerald-600 hover:bg-emerald-700"
+              >
                 {loading ? 'Creating account...' : 'Sign Up'}
               </Button>
             </TabsContent>
@@ -259,7 +298,12 @@ const Auth = () => {
             </div>
             
             <div className="mt-4 space-y-3">
-              <Button variant="outline" onClick={handleGoogleAuth} disabled={loading} className="w-full bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700">
+              <Button 
+                variant="outline" 
+                onClick={handleGoogleAuth} 
+                disabled={loading} 
+                className="w-full bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700"
+              >
                 <svg className="h-5 w-5 mr-3" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -272,7 +316,8 @@ const Auth = () => {
           </div>
         </CardContent>
       </Card>
-    </div>;
+    </div>
+  );
 };
 
 export default Auth;
