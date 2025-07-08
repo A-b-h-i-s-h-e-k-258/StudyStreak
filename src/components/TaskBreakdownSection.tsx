@@ -158,11 +158,11 @@ export const TaskBreakdownSection = ({ habits, currentDate }: TaskBreakdownSecti
         const streaks = calculateStreaks(habit.id);
         
         return (
-          <div key={habit.id} className="backdrop-blur-xl bg-white/5 dark:bg-white/60 rounded-xl border border-white/10 dark:border-gray-200 p-6">
+          <div key={habit.id} className="backdrop-blur-xl bg-white/5 dark:bg-white/60 rounded-xl border border-white/10 dark:border-gray-200 p-3 sm:p-6">
             {/* Task Header */}
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white dark:text-black">{habit.name}</h3>
-              <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
+              <h3 className="text-base sm:text-lg font-semibold text-white dark:text-black break-words">{habit.name}</h3>
+              <div className="flex items-center space-x-2 sm:space-x-4 flex-wrap">
                 <GoalModificationDialog
                   taskName={habit.name}
                   currentGoal={habit.goal}
@@ -172,35 +172,35 @@ export const TaskBreakdownSection = ({ habits, currentDate }: TaskBreakdownSecti
                   habitId={habit.id}
                   habitName={habit.name}
                 />
-                <div className="px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-sm font-medium">
+                <div className="px-2 sm:px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-xs sm:text-sm font-medium">
                   {getCompletionPercentage(habit.completed, habit.goal)}% Complete
                 </div>
               </div>
             </div>
 
             {/* Stats Row */}
-            <div className="grid grid-cols-4 gap-6 mb-4">
-              <div>
-                <div className="text-sm text-gray-400 dark:text-gray-600">Completions</div>
-                <div className="text-blue-400 dark:text-blue-600 font-medium">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 mb-4">
+              <div className="text-center sm:text-left">
+                <div className="text-xs sm:text-sm text-gray-400 dark:text-gray-600">Completions</div>
+                <div className="text-blue-400 dark:text-blue-600 font-medium text-sm sm:text-base">
                   {habit.completed}/{habit.goal === 0 ? '∞' : habit.goal}
                 </div>
               </div>
-              <div>
-                <div className="text-sm text-gray-400 dark:text-gray-600">Current Streak</div>
-                <div className="text-emerald-400 dark:text-emerald-600 font-medium">
+              <div className="text-center sm:text-left">
+                <div className="text-xs sm:text-sm text-gray-400 dark:text-gray-600">Current Streak</div>
+                <div className="text-emerald-400 dark:text-emerald-600 font-medium text-sm sm:text-base">
                   {streaks.currentStreak} days
                 </div>
               </div>
-              <div>
-                <div className="text-sm text-gray-400 dark:text-gray-600">Best Streak</div>
-                <div className="text-purple-400 dark:text-purple-600 font-medium">
+              <div className="text-center sm:text-left">
+                <div className="text-xs sm:text-sm text-gray-400 dark:text-gray-600">Best Streak</div>
+                <div className="text-purple-400 dark:text-purple-600 font-medium text-sm sm:text-base">
                   {streaks.bestStreak} days
                 </div>
               </div>
-              <div>
-                <div className="text-sm text-gray-400 dark:text-gray-600">Active Days</div>
-                <div className="text-orange-400 dark:text-orange-600 font-medium">
+              <div className="text-center sm:text-left">
+                <div className="text-xs sm:text-sm text-gray-400 dark:text-gray-600">Active Days</div>
+                <div className="text-orange-400 dark:text-orange-600 font-medium text-sm sm:text-base">
                   {streaks.activeDays} days
                 </div>
               </div>

@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EnhancedNavigation } from '@/components/EnhancedNavigation';
@@ -100,13 +101,15 @@ const Index = () => {
         onShare={scrollToQRSection}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+        <div className="space-y-6 sm:space-y-8">
           {/* Dashboard Section */}
           <DashboardSection displayName={displayName} />
 
           {/* Monthly Activity Grid */}
-          <MonthlyActivityGrid currentDate={currentDate} onDateChange={setCurrentDate} />
+          <div className="w-full overflow-hidden">
+            <MonthlyActivityGrid currentDate={currentDate} onDateChange={setCurrentDate} />
+          </div>
 
           {/* Achievements Section */}
           <AchievementsSection />

@@ -77,37 +77,39 @@ export const MonthlyActivityGrid = ({
     : undefined;
 
   return (
-    <ActivityGridContainer currentDate={currentDate}>
-      <NavigationControls currentDate={currentDate} onDateChange={onDateChange} />
-      
-      <ActivityStats 
-        totalCompletions={stats.totalCompletions}
-        currentStreak={stats.currentStreak}
-        activeHabits={habits.length}
-      />
+    <div className="w-full">
+      <ActivityGridContainer currentDate={currentDate}>
+        <NavigationControls currentDate={currentDate} onDateChange={onDateChange} />
+        
+        <ActivityStats 
+          totalCompletions={stats.totalCompletions}
+          currentStreak={stats.currentStreak}
+          activeHabits={habits.length}
+        />
 
-      <div className="space-y-3">
-        <DateHeader daysInMonth={daysInMonth} currentDay={currentDay} />
+        <div className="space-y-2 sm:space-y-3 overflow-x-auto">
+          <DateHeader daysInMonth={daysInMonth} currentDay={currentDay} />
 
-        {habits.map(habit => {
-          const { completionArray, totalCompletions } = getHabitCompletions(habit.id);
-          return (
-            <HabitRow
-              key={habit.id}
-              habitName={habit.name}
-              completions={completionArray}
-              totalCompletions={totalCompletions}
-              daysInMonth={daysInMonth}
-            />
-          );
-        })}
+          {habits.map(habit => {
+            const { completionArray, totalCompletions } = getHabitCompletions(habit.id);
+            return (
+              <HabitRow
+                key={habit.id}
+                habitName={habit.name}
+                completions={completionArray}
+                totalCompletions={totalCompletions}
+                daysInMonth={daysInMonth}
+              />
+            );
+          })}
 
-        {habits.length === 0 && (
-          <div className="text-center py-8 text-gray-400 dark:text-gray-600">
-            No habits to display. Add some habits to see your activity!
-          </div>
-        )}
-      </div>
-    </ActivityGridContainer>
+          {habits.length === 0 && (
+            <div className="text-center py-6 sm:py-8 text-gray-400 dark:text-gray-600 text-sm sm:text-base">
+              No habits to display. Add some habits to see your activity!
+            </div>
+          )}
+        </div>
+      </ActivityGridContainer>
+    </div>
   );
 };
