@@ -203,7 +203,15 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+    <div 
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{
+        backgroundImage: `url('/lovable-uploads/0153d363-cf53-44c8-9fae-b429bfd52c74.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
       <Card className="w-full max-w-md bg-gray-900/95 border-gray-700">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
