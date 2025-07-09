@@ -49,7 +49,15 @@ const Auth = () => {
         const { data: { session } } = await supabase.auth.getSession();
         console.log('Existing session found:', !!session?.user);
         if (session) {
-          navigate('/');
+          // Check if user is admin
+          const { data: isAdmin } = await supabase
+            .rpc('is_admin', { user_id: session.user.id });
+          
+          if (isAdmin) {
+            navigate('/admin-dashboard');
+          } else {
+            navigate('/');
+          }
         }
       } catch (error) {
         console.error('Error checking auth session:', error);
@@ -81,17 +89,28 @@ const Auth = () => {
           description: "We've sent you a confirmation link to complete your signup."
         });
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password
         });
         if (error) throw error;
         
-        toast({
-          title: "Welcome back!",
-          description: "You've successfully signed in."
-        });
-        navigate('/');
+        // Check if user is admin after successful login
+        if (data.user) {
+          const { data: isAdmin } = await supabase
+            .rpc('is_admin', { user_id: data.user.id });
+          
+          toast({
+            title: "Welcome back!",
+            description: "You've successfully signed in."
+          });
+          
+          if (isAdmin) {
+            navigate('/admin-dashboard');
+          } else {
+            navigate('/');
+          }
+        }
       }
     } catch (error: any) {
       console.error('Email auth error:', error);
