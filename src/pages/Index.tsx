@@ -11,6 +11,7 @@ import { MonthlyActivityGrid } from '@/components/MonthlyActivityGrid';
 import { QRSection } from '@/components/QRSection';
 import { Footer } from '@/components/Footer';
 import { AddHabitDialog } from '@/components/AddHabitDialog';
+import { ChatbaseWidget } from '@/components/ChatbaseWidget';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useHabits } from '@/hooks/useHabits';
@@ -141,6 +142,9 @@ const Index = () => {
         open={isAddHabitDialogOpen}
         onOpenChange={closeAddHabitDialog}
       />
+
+      {/* Chatbase Widget - Only for authenticated users */}
+      <ChatbaseWidget />
 
       {/* Footer */}
       <Footer />
