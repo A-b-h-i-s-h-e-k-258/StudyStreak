@@ -16,9 +16,7 @@ interface ContentItem {
   content_data: any;
   status: 'pending' | 'approved' | 'rejected';
   created_at: string;
-  profiles?: {
-    full_name: string;
-  };
+  user_name?: string;
 }
 
 export const ContentModeration = () => {
@@ -30,19 +28,14 @@ export const ContentModeration = () => {
     try {
       setLoading(true);
       
-      // Fetch user content with profile information
-      const { data, error } = await supabase
+      // Fetch user content
+      const { data: contentData, error: contentError } = await supabase
         .from('user_content')
-        .select(`
-          *,
-          profiles (
-            full_name
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching content:', error);
+      if (contentError) {
+        console.error('Error fetching content:', contentError);
         toast({
           title: "Error",
           description: "Failed to fetch content",
@@ -51,7 +44,21 @@ export const ContentModeration = () => {
         return;
       }
 
-      setContent(data || []);
+      // Get user profiles for the content
+      const userIds = [...new Set(contentData?.map(item => item.user_id) || [])];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', userIds);
+
+      // Map content with user names
+      const contentWithUsers = contentData?.map(item => ({
+        ...item,
+        status: item.status as 'pending' | 'approved' | 'rejected',
+        user_name: profiles?.find(p => p.id === item.user_id)?.full_name || 'Unknown User'
+      })) || [];
+
+      setContent(contentWithUsers);
     } catch (error) {
       console.error('Error fetching content:', error);
       toast({
@@ -185,7 +192,7 @@ export const ContentModeration = () => {
             <TableBody>
               {content.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>{item.profiles?.full_name || 'Unknown User'}</TableCell>
+                  <TableCell>{item.user_name}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{item.content_type}</Badge>
                   </TableCell>
@@ -211,7 +218,7 @@ export const ContentModeration = () => {
                               <strong>Type:</strong> {item.content_type}
                             </div>
                             <div>
-                              <strong>User:</strong> {item.profiles?.full_name || 'Unknown User'}
+                              <strong>User:</strong> {item.user_name}
                             </div>
                             <div>
                               <strong>Content:</strong>

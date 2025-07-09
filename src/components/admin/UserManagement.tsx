@@ -35,10 +35,7 @@ export const UserManagement = () => {
         .select(`
           id,
           full_name,
-          created_at,
-          user_roles (
-            role
-          )
+          created_at
         `);
 
       if (profilesError) {
@@ -51,16 +48,27 @@ export const UserManagement = () => {
         return;
       }
 
-      // Get auth users data from admin view (this would need to be implemented via a secure function)
-      // For now, we'll use the profiles data and supplement with available info
-      const usersData = profiles?.map(profile => ({
-        id: profile.id,
-        email: `user-${profile.id.slice(-4)}@example.com`, // Placeholder - would need auth data
-        created_at: profile.created_at,
-        last_sign_in_at: profile.created_at, // Placeholder - would need auth data
-        role: profile.user_roles?.[0]?.role || 'user' as 'user' | 'admin',
-        full_name: profile.full_name
-      })) || [];
+      // Fetch user roles
+      const { data: userRoles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) {
+        console.error('Error fetching user roles:', rolesError);
+      }
+
+      // Map profiles with roles
+      const usersData = profiles?.map(profile => {
+        const userRole = userRoles?.find(role => role.user_id === profile.id);
+        return {
+          id: profile.id,
+          email: `user-${profile.id.slice(-4)}@example.com`, // Placeholder - would need auth data
+          created_at: profile.created_at,
+          last_sign_in_at: profile.created_at, // Placeholder - would need auth data
+          role: (userRole?.role || 'user') as 'user' | 'admin',
+          full_name: profile.full_name
+        };
+      }) || [];
 
       setUsers(usersData);
     } catch (error) {
