@@ -1,199 +1,73 @@
 
-import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import { Users, UserPlus, TrendingUp, Activity } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-
-interface AnalyticsData {
-  totalUsers: number;
-  newSignups: number;
-  activeUsers: number;
-  habitCompletionRate: number;
-  dailyActiveUsers: Array<{ date: string; users: number }>;
-  signupData: Array<{ date: string; signups: number }>;
-  habitCompletionData: Array<{ name: string; completions: number }>;
-}
 
 export const AnalyticsDashboard = () => {
-  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  // Mock data for charts
+  const dailyActiveUsers = [
+    { date: '2024-01-01', users: 45 },
+    { date: '2024-01-02', users: 52 },
+    { date: '2024-01-03', users: 38 },
+    { date: '2024-01-04', users: 67 },
+    { date: '2024-01-05', users: 74 },
+    { date: '2024-01-06', users: 89 },
+    { date: '2024-01-07', users: 95 },
+  ];
 
-  const fetchAnalytics = async () => {
-    try {
-      setLoading(true);
+  const signupData = [
+    { date: '2024-01-01', signups: 5 },
+    { date: '2024-01-02', signups: 8 },
+    { date: '2024-01-03', signups: 3 },
+    { date: '2024-01-04', signups: 12 },
+    { date: '2024-01-05', signups: 7 },
+    { date: '2024-01-06', signups: 15 },
+    { date: '2024-01-07', signups: 9 },
+  ];
 
-      // Fetch total users
-      const { count: totalUsers } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
-
-      // Fetch users created in last 7 days
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      
-      const { count: newSignups } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', sevenDaysAgo.toISOString());
-
-      // Fetch total habits
-      const { count: totalHabits } = await supabase
-        .from('habits')
-        .select('*', { count: 'exact', head: true });
-
-      // Fetch habit completions
-      const { count: totalCompletions } = await supabase
-        .from('habit_completions')
-        .select('*', { count: 'exact', head: true });
-
-      // Calculate habit completion rate
-      const habitCompletionRate = totalHabits && totalCompletions 
-        ? Math.round((totalCompletions / (totalHabits * 30)) * 100) 
-        : 0;
-
-      // Fetch daily signups for the last 7 days
-      const signupData = [];
-      const dailyActiveUsers = [];
-      
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split('T')[0];
-        
-        const { count: dailySignups } = await supabase
-          .from('profiles')
-          .select('*', { count: 'exact', head: true })
-          .gte('created_at', dateStr)
-          .lt('created_at', `${dateStr}T23:59:59.999Z`);
-
-        // For active users, we'll use a simplified metric based on habit completions
-        const { count: dailyCompletions } = await supabase
-          .from('habit_completions')
-          .select('*', { count: 'exact', head: true })
-          .eq('completion_date', dateStr);
-
-        signupData.push({
-          date: dateStr,
-          signups: dailySignups || 0
-        });
-
-        dailyActiveUsers.push({
-          date: dateStr,
-          users: dailyCompletions || 0
-        });
-      }
-
-      // Fetch habit completion data by habit name
-      const { data: habits } = await supabase
-        .from('habits')
-        .select(`
-          name,
-          habit_completions (
-            id
-          )
-        `)
-        .limit(5);
-
-      const habitCompletionData = habits?.map(habit => ({
-        name: habit.name,
-        completions: habit.habit_completions?.length || 0
-      })) || [];
-
-      setAnalytics({
-        totalUsers: totalUsers || 0,
-        newSignups: newSignups || 0,
-        activeUsers: totalCompletions || 0, // Using completions as proxy for active users
-        habitCompletionRate,
-        dailyActiveUsers,
-        signupData,
-        habitCompletionData
-      });
-
-    } catch (error) {
-      console.error('Error fetching analytics:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch analytics data",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAnalytics();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-6">
-                <div className="animate-pulse space-y-2">
-                  <div className="h-4 bg-muted rounded w-3/4"></div>
-                  <div className="h-8 bg-muted rounded w-1/2"></div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (!analytics) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="text-center text-muted-foreground">
-            Failed to load analytics data
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const stats = [
-    {
-      title: 'Total Users',
-      value: analytics.totalUsers.toString(),
-      change: '+12%',
-      icon: Users,
-      color: 'text-blue-600'
-    },
-    {
-      title: 'New Signups',
-      value: analytics.newSignups.toString(),
-      change: '+23%',
-      icon: UserPlus,
-      color: 'text-green-600'
-    },
-    {
-      title: 'Active Users',
-      value: analytics.activeUsers.toString(),
-      change: '+8%',
-      icon: Activity,
-      color: 'text-purple-600'
-    },
-    {
-      title: 'Habit Completion',
-      value: `${analytics.habitCompletionRate}%`,
-      change: '+5%',
-      icon: TrendingUp,
-      color: 'text-orange-600'
-    },
+  const habitCompletionData = [
+    { name: 'Exercise', completions: 85 },
+    { name: 'Reading', completions: 72 },
+    { name: 'Meditation', completions: 68 },
+    { name: 'Water Intake', completions: 91 },
+    { name: 'Sleep Schedule', completions: 76 },
   ];
 
   const userEngagement = [
     { name: 'Highly Active', value: 35, color: '#10b981' },
     { name: 'Moderately Active', value: 45, color: '#3b82f6' },
     { name: 'Low Activity', value: 20, color: '#f59e0b' },
+  ];
+
+  const stats = [
+    {
+      title: 'Total Users',
+      value: '1,234',
+      change: '+12%',
+      icon: Users,
+      color: 'text-blue-600'
+    },
+    {
+      title: 'New Signups',
+      value: '89',
+      change: '+23%',
+      icon: UserPlus,
+      color: 'text-green-600'
+    },
+    {
+      title: 'Active Users',
+      value: '856',
+      change: '+8%',
+      icon: Activity,
+      color: 'text-purple-600'
+    },
+    {
+      title: 'Habit Completion',
+      value: '78%',
+      change: '+5%',
+      icon: TrendingUp,
+      color: 'text-orange-600'
+    },
   ];
 
   return (
@@ -224,7 +98,7 @@ export const AnalyticsDashboard = () => {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={analytics.dailyActiveUsers}>
+              <LineChart data={dailyActiveUsers}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis />
@@ -241,7 +115,7 @@ export const AnalyticsDashboard = () => {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={analytics.signupData}>
+              <BarChart data={signupData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis />
@@ -254,11 +128,11 @@ export const AnalyticsDashboard = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Habit Completion by Habit</CardTitle>
+            <CardTitle>Habit Completion Rates</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={analytics.habitCompletionData} layout="horizontal">
+              <BarChart data={habitCompletionData} layout="horizontal">
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" />
                 <YAxis dataKey="name" type="category" />

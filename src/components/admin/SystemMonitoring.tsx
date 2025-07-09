@@ -1,88 +1,11 @@
 
-import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Server, Database, Zap, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-
-interface SystemStats {
-  totalHabits: number;
-  totalTasks: number;
-  totalUsers: number;
-  totalCompletions: number;
-  recentErrors: Array<{
-    id: string;
-    timestamp: string;
-    level: string;
-    message: string;
-    service: string;
-  }>;
-}
 
 export const SystemMonitoring = () => {
-  const [systemStats, setSystemStats] = useState<SystemStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
-
-  const fetchSystemStats = async () => {
-    try {
-      setLoading(true);
-
-      // Fetch system statistics
-      const [
-        { count: totalHabits },
-        { count: totalTasks },
-        { count: totalUsers },
-        { count: totalCompletions },
-        { data: adminLogs }
-      ] = await Promise.all([
-        supabase.from('habits').select('*', { count: 'exact', head: true }),
-        supabase.from('tasks').select('*', { count: 'exact', head: true }),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('habit_completions').select('*', { count: 'exact', head: true }),
-        supabase.from('admin_logs').select('*').order('created_at', { ascending: false }).limit(10)
-      ]);
-
-      // Convert admin logs to error format for display
-      const recentErrors = adminLogs?.map(log => ({
-        id: log.id,
-        timestamp: new Date(log.created_at).toLocaleString(),
-        level: log.action.includes('error') ? 'error' : 'info',
-        message: `Admin action: ${log.action}`,
-        service: log.target_type || 'System'
-      })) || [];
-
-      setSystemStats({
-        totalHabits: totalHabits || 0,
-        totalTasks: totalTasks || 0,
-        totalUsers: totalUsers || 0,
-        totalCompletions: totalCompletions || 0,
-        recentErrors
-      });
-
-    } catch (error) {
-      console.error('Error fetching system stats:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch system statistics",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchSystemStats();
-    
-    // Refresh every 30 seconds
-    const interval = setInterval(fetchSystemStats, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
   const systemHealth = [
     {
       name: 'API Server',
@@ -107,23 +30,50 @@ export const SystemMonitoring = () => {
     },
     {
       name: 'Storage',
-      status: 'healthy',
+      status: 'warning',
       uptime: '98.5%',
       responseTime: '67ms',
       icon: Database
     }
   ];
 
-  const getApiStats = () => {
-    if (!systemStats) return [];
-    
-    return [
-      { endpoint: '/api/habits', calls: systemStats.totalHabits, avgResponse: '45ms', errors: 0 },
-      { endpoint: '/api/tasks', calls: systemStats.totalTasks, avgResponse: '34ms', errors: 0 },
-      { endpoint: '/api/users', calls: systemStats.totalUsers, avgResponse: '67ms', errors: 0 },
-      { endpoint: '/api/completions', calls: systemStats.totalCompletions, avgResponse: '23ms', errors: 0 },
-    ];
-  };
+  const errorLogs = [
+    {
+      id: '1',
+      timestamp: '2024-01-07 10:30:00',
+      level: 'error',
+      message: 'Database connection timeout',
+      service: 'API Server'
+    },
+    {
+      id: '2',
+      timestamp: '2024-01-07 09:15:00',
+      level: 'warning',
+      message: 'High memory usage detected',
+      service: 'Database'
+    },
+    {
+      id: '3',
+      timestamp: '2024-01-07 08:45:00',
+      level: 'error',
+      message: 'Authentication service rate limit exceeded',
+      service: 'Auth Service'
+    },
+    {
+      id: '4',
+      timestamp: '2024-01-07 07:20:00',
+      level: 'info',
+      message: 'Scheduled backup completed successfully',
+      service: 'Storage'
+    }
+  ];
+
+  const apiStats = [
+    { endpoint: '/api/habits', calls: 1247, avgResponse: '45ms', errors: 3 },
+    { endpoint: '/api/auth', calls: 892, avgResponse: '23ms', errors: 1 },
+    { endpoint: '/api/users', calls: 567, avgResponse: '67ms', errors: 0 },
+    { endpoint: '/api/tasks', calls: 334, avgResponse: '34ms', errors: 2 },
+  ];
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -163,25 +113,6 @@ export const SystemMonitoring = () => {
         return <Badge variant="outline">Debug</Badge>;
     }
   };
-
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-6">
-                <div className="animate-pulse space-y-4">
-                  <div className="h-4 bg-muted rounded w-3/4"></div>
-                  <div className="h-4 bg-muted rounded w-1/2"></div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -223,21 +154,21 @@ export const SystemMonitoring = () => {
           <CardContent className="space-y-4">
             <div>
               <div className="flex justify-between text-sm mb-2">
-                <span>Database Usage</span>
-                <span>{systemStats ? Math.min(90, systemStats.totalUsers + systemStats.totalHabits) : 0}%</span>
+                <span>CPU Usage</span>
+                <span>45%</span>
               </div>
-              <Progress value={systemStats ? Math.min(90, systemStats.totalUsers + systemStats.totalHabits) : 0} />
+              <Progress value={45} />
             </div>
             <div>
               <div className="flex justify-between text-sm mb-2">
-                <span>API Calls</span>
-                <span>{systemStats ? Math.min(85, systemStats.totalCompletions / 10) : 0}%</span>
+                <span>Memory Usage</span>
+                <span>67%</span>
               </div>
-              <Progress value={systemStats ? Math.min(85, systemStats.totalCompletions / 10) : 0} />
+              <Progress value={67} />
             </div>
             <div>
               <div className="flex justify-between text-sm mb-2">
-                <span>Storage Usage</span>
+                <span>Disk Usage</span>
                 <span>23%</span>
               </div>
               <Progress value={23} />
@@ -261,13 +192,13 @@ export const SystemMonitoring = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Endpoint</TableHead>
-                  <TableHead>Records</TableHead>
+                  <TableHead>Calls</TableHead>
                   <TableHead>Avg Response</TableHead>
                   <TableHead>Errors</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {getApiStats().map((stat, index) => (
+                {apiStats.map((stat, index) => (
                   <TableRow key={index}>
                     <TableCell className="font-mono text-sm">{stat.endpoint}</TableCell>
                     <TableCell>{stat.calls.toLocaleString()}</TableCell>
@@ -287,35 +218,29 @@ export const SystemMonitoring = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Recent Activity Logs</CardTitle>
+          <CardTitle>Recent Error Logs</CardTitle>
         </CardHeader>
         <CardContent>
-          {!systemStats?.recentErrors.length ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No recent activity logs
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Timestamp</TableHead>
-                  <TableHead>Level</TableHead>
-                  <TableHead>Service</TableHead>
-                  <TableHead>Message</TableHead>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Timestamp</TableHead>
+                <TableHead>Level</TableHead>
+                <TableHead>Service</TableHead>
+                <TableHead>Message</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {errorLogs.map((log) => (
+                <TableRow key={log.id}>
+                  <TableCell className="font-mono text-sm">{log.timestamp}</TableCell>
+                  <TableCell>{getLogLevelBadge(log.level)}</TableCell>
+                  <TableCell>{log.service}</TableCell>
+                  <TableCell>{log.message}</TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {systemStats.recentErrors.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell className="font-mono text-sm">{log.timestamp}</TableCell>
-                    <TableCell>{getLogLevelBadge(log.level)}</TableCell>
-                    <TableCell>{log.service}</TableCell>
-                    <TableCell>{log.message}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>
